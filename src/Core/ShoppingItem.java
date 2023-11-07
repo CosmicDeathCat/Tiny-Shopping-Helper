@@ -1,0 +1,135 @@
+package Core;
+
+import Core.SaleType;
+import Core.SalesCalculator;
+
+public class ShoppingItem {
+    private String name;
+    private int quantity = 1;
+    private double price = 0.0;
+    
+    private SaleType saleType = SaleType.None;
+
+    private double percentOff = 0.0;
+
+    private double amountOff = 0.0;
+
+    private int amountX = 0;
+
+    private int amountY = 0;
+    
+    private double taxRate = 0.0;
+
+    private boolean hasShipping = false;
+
+    private double shippingCost = 0.0;
+
+    public String getName () {
+        return name;
+    }
+
+    public int getQuantity () {
+        return quantity;
+    }
+
+    public double getPrice () {
+        return price;
+    }
+
+    public SaleType getSaleType () {
+        return saleType;
+    }
+
+    public double getPercentOff () { return percentOff; }
+
+    public double getAmountOff () { return amountOff; }
+
+    public int getAmountX () { return amountX; }
+
+    public int getAmountY () { return amountY; }
+
+    public double getTaxRate () {
+        return taxRate;
+    }
+
+    public boolean getHasShipping () { return hasShipping; }
+
+    public double getShippingCost () { return shippingCost; }
+
+    public void setName (String name) { this.name = name; }
+
+    public void setQuantity (int quantity) { this.quantity = quantity; }
+
+    public void setPrice (double price) { this.price = price; }
+
+    public void setSaleType (SaleType saleType) { this.saleType = saleType; }
+
+    public void setPercentOff (double percentOff) { this.percentOff = percentOff; }
+
+    public void setAmountOff (double amountOff) { this.amountOff = amountOff; }
+
+    public void setAmountX (int amountX) { this.amountX = amountX; }
+
+    public void setAmountY (int amountY) { this.amountY = amountY; }
+
+    public void setTaxRate (double taxRate) { this.taxRate = taxRate; }
+
+    public void setHasShipping (boolean hasShipping) { this.hasShipping = hasShipping; }
+
+    public void setShippingCost (double shippingCost) { this.shippingCost = shippingCost; }
+
+    public double getTotalPrice (boolean includeTax) {
+        double subtotal = 0;
+
+        switch (saleType){
+
+            case None -> {
+                subtotal = this.price * this.quantity;
+            }
+            case PercentOff -> {
+                subtotal = SalesCalculator.percentOff(this, this.percentOff);
+            }
+            case BuyXGetYPercentOff -> {
+                subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff);
+            }
+            case BuyXGetYFree -> {
+                subtotal = SalesCalculator.buyXgetYFree(this, this.amountX, this.amountY);
+            }
+            case AmountOff -> {
+                subtotal = SalesCalculator.amountOff(this, this.amountOff);
+            }
+            case AmountOffEach -> {
+                subtotal = SalesCalculator.amountOffEach(this, this.amountOff);
+            }
+        }
+        if (this.hasShipping) {
+            subtotal += this.shippingCost;
+        }
+        if (includeTax) {
+            return Math.round(subtotal * (1 + this.taxRate) * 100.0) / 100.0;
+        }
+        return subtotal;
+    }
+
+    public ShoppingItem() {
+        this.name = "Item";
+        this.quantity = 1;
+        this.price = 1.0;
+        this.saleType = SaleType.None;
+        this.taxRate = 1.0;
+    }
+    public ShoppingItem(String name, int quantity, double price, SaleType saleType, double taxRate) {
+        this.name = name;
+        this.quantity = quantity;
+        this.price = price;
+        this.saleType = saleType;
+        this.taxRate = taxRate;
+    }
+
+    @Override
+    public String toString() {
+        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false) + "\nTotal: " + getTotalPrice(true);
+    }
+
+    
+}
