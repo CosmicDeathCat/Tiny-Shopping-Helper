@@ -1,8 +1,8 @@
-package Core;
+package core;
 
-import Core.SaleType;
-import Core.SalesCalculator;
-
+/**
+ * This class contains methods for a shopping item.
+ */
 public class ShoppingItem {
     private String name;
     private int quantity = 1;
@@ -78,6 +78,11 @@ public class ShoppingItem {
 
     public void setShippingCost (double shippingCost) { this.shippingCost = shippingCost; }
 
+    /**
+     * Calculates the total price of an item
+     * @param includeTax
+     * @return
+     */
     public double getTotalPrice (boolean includeTax) {
         double subtotal = 0;
 
@@ -92,6 +97,9 @@ public class ShoppingItem {
             case BuyXGetYPercentOff -> {
                 subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff);
             }
+            case BuyXGetPercentOffTotal -> {
+                subtotal = SalesCalculator.buyXgetPercentOffTotal(this, this.amountX, this.price * this.quantity, this.percentOff);
+            }
             case BuyXGetYFree -> {
                 subtotal = SalesCalculator.buyXgetYFree(this, this.amountX, this.amountY);
             }
@@ -100,6 +108,9 @@ public class ShoppingItem {
             }
             case AmountOffEach -> {
                 subtotal = SalesCalculator.amountOffEach(this, this.amountOff);
+            }
+            case AmountOffTotal -> {
+                subtotal = SalesCalculator.amountOffTotal(this.price * this.quantity, this.amountOff);
             }
         }
         if (this.hasShipping) {
@@ -111,6 +122,9 @@ public class ShoppingItem {
         return subtotal;
     }
 
+    /**
+     * Default constructor for a shopping item
+     */
     public ShoppingItem() {
         this.name = "Item";
         this.quantity = 1;
@@ -118,6 +132,15 @@ public class ShoppingItem {
         this.saleType = SaleType.None;
         this.taxRate = 1.0;
     }
+
+    /**
+     * Constructor for a shopping item
+     * @param name
+     * @param quantity
+     * @param price
+     * @param saleType
+     * @param taxRate
+     */
     public ShoppingItem(String name, int quantity, double price, SaleType saleType, double taxRate) {
         this.name = name;
         this.quantity = quantity;
