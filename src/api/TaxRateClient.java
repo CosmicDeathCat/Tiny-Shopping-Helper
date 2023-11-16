@@ -1,5 +1,7 @@
 package api;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import core.Configuration;
 import data.TaxRateResponse;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -7,10 +9,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 public class TaxRateClient {
 
-    private static final String API_URL = "https://retrieveustaxrate.p.rapidapi.com/GetTaxRateByZip?zip=";
-    private static final String AUTH_HEADER = "Basic Ym9sZGNoYXQ6TGZYfm0zY2d1QzkuKz9SLw==";
-    private static final String API_KEY = "77600ecdedmsh1931c459c3b1795p1025eejsn9fa34f562588";
-    private static final String API_HOST = "retrieveustaxrate.p.rapidapi.com";
+    private static final String API_URL = Configuration.getApiUrl();
+    private static final String API_KEY = Configuration.getApiKey();
+    private static final String API_HOST = Configuration.getApiHost();
     private final Gson gson;
 
     public TaxRateClient() {
