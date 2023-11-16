@@ -11,7 +11,7 @@ public class SalesCalculator {
      * @return
      */
     public static double percentOff (ShoppingItem item, double percentOff) {
-        return item.getPrice() - (item.getPrice() * percentOff / 100);
+        return item.getPrice() * item.getQuantity() - ((item.getPrice() * item.getQuantity()) * percentOff / 100);
     }
 
     /**

@@ -1,14 +1,19 @@
 package ui;
 
+import api.TaxRateClient;
 import core.*;
+import data.TaxRateResponse;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class ShoppingMainConsole {
     public static ShoppingCart Cart = new ShoppingCart();
 
     public static void main(String[] args) {
         Scanner scnr = new Scanner(System.in);
+        TaxRateResponse taxRateResponse = enterTaxZipCode(scnr);
+        Cart.setTaxRate(taxRateResponse.getTaxRate());
         while (true) {
             shoppingCartInput(scnr);
         }
@@ -31,8 +36,8 @@ public class ShoppingMainConsole {
                     item.getQuantity(),
                     item.getPrice(),
                     item.getTaxRate(),
-                    item.getTotalPrice(false),
-                    item.getTotalPrice(true)
+                    item.getTotalPrice(false, false),
+                    item.getTotalPrice(true, true)
             );
         }
         Cart.calculateSubTotal();
@@ -277,17 +282,52 @@ public class ShoppingMainConsole {
      * @param scnr
      * @return
      */
-    public static double enterItemTaxRate(Scanner scnr) {
-        try {
-            System.out.print("Enter the tax rate of the item: ");
-            double taxRate = scnr.nextDouble();
-            scnr.nextLine();
-            return taxRate;
-        } catch (Exception e) {
-            System.out.print("Invalid tax rate. Enter a number.");
-            return enterItemTaxRate(scnr);
+    public static TaxRateResponse enterTaxZipCode(Scanner scnr){
+        String zipCodePattern = "^[0-9]{5}(?:-[0-9]{4})?$"; // Regex for validating US zip code
+
+        while (true) {
+            try {
+                System.out.print("Enter your zip code to get the tax rate: ");
+                String zipCode = scnr.nextLine();
+
+                // Check if the zip code matches the pattern
+                if (!Pattern.matches(zipCodePattern, zipCode)) {
+                    System.out.println("Invalid zip code format. Please enter a 5-digit or 9-digit zip code.");
+                    continue;
+                }
+
+                TaxRateClient taxRateClient = new TaxRateClient();
+                TaxRateResponse taxRateResponse = taxRateClient.getTaxRateByZip(zipCode);
+
+                if (taxRateResponse != null) {
+                    System.out.println("Tax rate: " + taxRateResponse.getTaxRate());
+                    return taxRateResponse;
+                } else {
+                    System.out.println("Failed to retrieve tax rate. Please try again.");
+                }
+            } catch (Exception e) {
+                System.out.println("An error occurred: " + e.getMessage());
+                System.out.println("Please try again.");
+            }
         }
     }
+
+    /**
+     * Gets the user's input for the tax rate of the item.
+     * @param scnr
+     * @return
+     */
+//    public static double enterItemTaxRate(Scanner scnr) {
+//        try {
+//            System.out.print("Enter the tax rate of the item: ");
+//            double taxRate = scnr.nextDouble();
+//            scnr.nextLine();
+//            return taxRate;
+//        } catch (Exception e) {
+//            System.out.print("Invalid tax rate. Enter a number.");
+//            return enterItemTaxRate(scnr);
+//        }
+//    }
 
     /**
      * Gets the user's input for if the item has shipping.
@@ -362,7 +402,8 @@ public class ShoppingMainConsole {
                 item.setAmountOff(enterItemAmountOff(scnr));
             }
         }
-        item.setTaxRate(enterItemTaxRate(scnr));
+        item.setTaxRate(Cart.getTaxRate());
+//        item.setTaxRate(enterItemTaxRate(scnr));
         item.setHasShipping(enterItemHasShipping(scnr));
         if (item.getHasShipping()) {
             item.setShippingCost(enterItemShippingCost(scnr));

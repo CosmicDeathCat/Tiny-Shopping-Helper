@@ -83,7 +83,7 @@ public class ShoppingItem {
      * @param includeTax
      * @return
      */
-    public double getTotalPrice (boolean includeTax) {
+    public double getTotalPrice (boolean includeTax, boolean includeShipping) {
         double subtotal = 0;
 
         switch (saleType){
@@ -113,7 +113,7 @@ public class ShoppingItem {
                 subtotal = SalesCalculator.amountOffTotal(this.price * this.quantity, this.amountOff);
             }
         }
-        if (this.hasShipping) {
+        if (includeShipping && this.hasShipping) {
             subtotal += this.shippingCost;
         }
         if (includeTax) {
@@ -151,7 +151,7 @@ public class ShoppingItem {
 
     @Override
     public String toString() {
-        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false) + "\nTotal: " + getTotalPrice(true);
+        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false, false) + "\nTotal: " + getTotalPrice(true, true);
     }
 
     

@@ -10,6 +10,8 @@ public class ShoppingCart {
     private double subTotal = 0.0;
     private double total = 0.0;
 
+    private double taxRate = 0.0;
+
     public ArrayList<ShoppingItem> getItems() {
         return items;
     }
@@ -20,6 +22,10 @@ public class ShoppingCart {
 
     public double getTotal() {
         return total;
+    }
+
+    public double getTaxRate() {
+        return taxRate;
     }
 
 
@@ -33,6 +39,10 @@ public class ShoppingCart {
 
     public void setTotal(double total) {
         this.total = total;
+    }
+
+    public void setTaxRate(double taxRate) {
+        this.taxRate = taxRate;
     }
 
     /**
@@ -64,7 +74,7 @@ public class ShoppingCart {
             itemToEdit.setAmountOff(item.getAmountOff());
             itemToEdit.setAmountX(item.getAmountX());
             itemToEdit.setAmountY(item.getAmountY());
-            itemToEdit.setTaxRate(item.getTaxRate());
+            itemToEdit.setTaxRate(getTaxRate());
             itemToEdit.setHasShipping(item.getHasShipping());
             itemToEdit.setShippingCost(item.getShippingCost());
         }
@@ -91,7 +101,7 @@ public class ShoppingCart {
     public void calculateSubTotal() {
         subTotal = 0.0;
         for (ShoppingItem item : items) {
-            subTotal += item.getTotalPrice(false);
+            subTotal += item.getTotalPrice(false, false);
         }
     }
 
@@ -101,7 +111,7 @@ public class ShoppingCart {
     public void calculateTotal() {
         total = 0.0;
         for (ShoppingItem item : items) {
-            total += item.getTotalPrice(true);
+            total += item.getTotalPrice(true, true);
         }
     }
 
@@ -112,5 +122,6 @@ public class ShoppingCart {
         this.items = new ArrayList<ShoppingItem>();
         this.subTotal = 0.0;
         this.total = 0.0;
+        this.taxRate = 0.0;
     }
 }
