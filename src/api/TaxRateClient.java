@@ -1,7 +1,7 @@
 package api;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import core.Configuration;
+import utility.JSONHelper;
 import data.TaxRateResponse;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -53,7 +53,7 @@ public class TaxRateClient {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            List<TaxRateResponse> taxRates = gson.fromJson(response.body(), new TypeToken<List<TaxRateResponse>>(){}.getType());
+            List<TaxRateResponse> taxRates = JSONHelper.fromJSONList(response.body(), TaxRateResponse.class);
             return taxRates.isEmpty() ? null : taxRates.get(0);
         } catch (Exception e) {
             e.printStackTrace();

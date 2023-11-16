@@ -1,4 +1,4 @@
-package core;
+package data;
 /**
  * This enum contains the different types of sales.
  */

@@ -1,5 +1,7 @@
 package core;
 
+import data.ShoppingItem;
+
 /**
  * This class contains methods for calculating sales
  */

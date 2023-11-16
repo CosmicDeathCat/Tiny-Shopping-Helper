@@ -1,4 +1,6 @@
-package core;
+package data;
+
+import annotations.FieldLabel;
 
 import java.util.ArrayList;
 
@@ -6,11 +8,24 @@ import java.util.ArrayList;
  * This class contains methods for a shopping cart.
  */
 public class ShoppingCart {
+
+    @FieldLabel("Items")
     private ArrayList<ShoppingItem> items = new ArrayList<ShoppingItem>();
+
+    @FieldLabel("Subtotal")
     private double subTotal = 0.0;
+
+    @FieldLabel("Total")
     private double total = 0.0;
 
+    @FieldLabel("Tax Rate")
     private double taxRate = 0.0;
+
+    @FieldLabel("Shipping Cost")
+    private double shippingCost = 0.0;
+
+    @FieldLabel("Flat Shipping")
+    private boolean flatShipping = false;
 
     public ArrayList<ShoppingItem> getItems() {
         return items;
@@ -28,6 +43,10 @@ public class ShoppingCart {
         return taxRate;
     }
 
+    public double getShippingCost() {
+        return shippingCost;
+    }
+
 
     public void setItems(ArrayList<ShoppingItem> items) {
         this.items = items;
@@ -43,6 +62,10 @@ public class ShoppingCart {
 
     public void setTaxRate(double taxRate) {
         this.taxRate = taxRate;
+    }
+
+    public void setShippingCost(double shippingCost) {
+        this.shippingCost = shippingCost;
     }
 
     /**
@@ -98,21 +121,36 @@ public class ShoppingCart {
     /**
      * This method calculates the subtotal of the cart.
      */
-    public void calculateSubTotal() {
+    public double calculateSubTotal() {
         subTotal = 0.0;
         for (ShoppingItem item : items) {
             subTotal += item.getTotalPrice(false, false);
         }
+        return subTotal;
     }
 
     /**
      * This method calculates the total of the cart.
      */
-    public void calculateTotal() {
+    public double calculateTotal() {
         total = 0.0;
         for (ShoppingItem item : items) {
             total += item.getTotalPrice(true, true);
         }
+        total += calculateShippingCost();
+        return total;
+    }
+
+    /**
+     * This method calculates the shipping cost of the cart.
+     */
+    public double calculateShippingCost() {
+        if (flatShipping) {
+            return shippingCost;
+        }
+        shippingCost = 0.0;
+        shippingCost = items.stream().mapToDouble(ShoppingItem::getShippingCost).sum();
+        return shippingCost;
     }
 
     /**
@@ -123,5 +161,6 @@ public class ShoppingCart {
         this.subTotal = 0.0;
         this.total = 0.0;
         this.taxRate = 0.0;
+        this.shippingCost = 0.0;
     }
 }

@@ -1,27 +1,38 @@
-package core;
+package data;
+
+import annotations.FieldLabel;
+import core.SalesCalculator;
 
 /**
  * This class contains methods for a shopping item.
  */
 public class ShoppingItem {
+    @FieldLabel("Name")
     private String name;
+    @FieldLabel("Quantity")
     private int quantity = 1;
+    @FieldLabel("Price")
     private double price = 0.0;
-    
+    @FieldLabel("Sale Type")
     private SaleType saleType = SaleType.None;
-
+    @FieldLabel("Percent Off")
     private double percentOff = 0.0;
-
+    @FieldLabel("Amount Off")
     private double amountOff = 0.0;
 
+    @FieldLabel("Amount X")
     private int amountX = 0;
 
+    @FieldLabel("Amount Y")
     private int amountY = 0;
-    
+
+    @FieldLabel("Tax Rate")
     private double taxRate = 0.0;
 
+    @FieldLabel("Has Shipping")
     private boolean hasShipping = false;
 
+    @FieldLabel("Shipping Cost")
     private double shippingCost = 0.0;
 
     public String getName () {

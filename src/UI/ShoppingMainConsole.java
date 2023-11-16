@@ -1,8 +1,13 @@
 package ui;
 
 import api.TaxRateClient;
-import core.*;
+import data.SaleType;
+import data.ShoppingCart;
+import data.ShoppingItem;
 import data.TaxRateResponse;
+import utility.DataSaver;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -12,25 +17,48 @@ public class ShoppingMainConsole {
 
     public static void main(String[] args) {
         Scanner scnr = new Scanner(System.in);
-        TaxRateResponse taxRateResponse = enterTaxZipCode(scnr);
-        Cart.setTaxRate(taxRateResponse.getTotalRate());
+        System.out.println("Welcome to the Tiny Shopping Helper program!");
+        System.out.println("Do you want to manually enter the tax rate or get it from your zip code?");
+        System.out.println("1. Get tax rate from zip code");
+        System.out.println("2. Manually enter tax rate");
+        int input = scnr.nextInt();
+        if (input == 1) {
+            scnr.nextLine();
+            TaxRateResponse taxRateResponse = enterTaxZipCode(scnr);
+            Cart.setTaxRate(taxRateResponse.getTotalRate());
+        } else if (input == 2) {
+            scnr.nextLine();
+            System.out.print("Enter the tax rate: ");
+            double taxRate = scnr.nextDouble();
+            scnr.nextLine();
+            Cart.setTaxRate(taxRate);
+        } else {
+            System.out.println("Invalid input. Enter a number between 1 and 2.");
+            main(args);
+            return;
+        }
         while (true) {
             shoppingCartInput(scnr);
         }
     }
+
     /**
-     * Prints the receipt for the items in the cart.
-     * @param items The items in the cart.
+     * Prints the receipt for the shopping cart.
+     * @param cart The shopping cart to print the receipt for.
      */
-    public static void printReceipt(ArrayList<ShoppingItem> items) {
+    public static void printReceipt(ShoppingCart cart) {
         String headerFormat = "%-20s%-10s%-10s%-10s%-10s%-10s%n";
         String itemFormat = "%-20s%-10d%-10.2f%-10.2f%-10.2f%-10.2f%n";
+
+        // Calculate totals
+        cart.calculateSubTotal();
+        cart.calculateTotal();
 
         // Print header
         System.out.printf(headerFormat, "Item", "Quantity", "Price", "Tax Rate", "SubTotal", "Total");
 
         // Print each item
-        for (ShoppingItem item : items) {
+        for (ShoppingItem item : cart.getItems()) {
             System.out.printf(itemFormat,
                     item.getName(),
                     item.getQuantity(),
@@ -40,13 +68,15 @@ public class ShoppingMainConsole {
                     item.getTotalPrice(true, true)
             );
         }
-        Cart.calculateSubTotal();
-        Cart.calculateTotal();
 
-        // Print SubTotal
-        System.out.println("SubTotal: " + String.format("%.2f", Cart.getSubTotal()));
-        // Print total
-        System.out.println("Total: " + String.format("%.2f", Cart.getTotal()));
+        // Print SubTotal and Total
+        System.out.println("\nSubTotal: " + String.format("%.2f", cart.getSubTotal()));
+        System.out.println("Shipping Cost: " + String.format("%.2f", cart.getShippingCost()));
+        System.out.println("Total: " + String.format("%.2f", cart.getTotal()));
+
+        // Save to file
+        JFrame frame = new JFrame();
+        DataSaver.saveWithDialog(cart, frame);
     }
 
     /**
@@ -84,10 +114,10 @@ public class ShoppingMainConsole {
                     }
                     break;
                 case 3:
-                    printReceipt(Cart.getItems());
+                    printReceipt(Cart);
                     break;
                 case 4:
-                    printReceipt(Cart.getItems());
+                    printReceipt(Cart);
                 case 5:
                     System.exit(0);
                 default:
