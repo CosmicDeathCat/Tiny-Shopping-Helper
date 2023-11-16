@@ -1,6 +1,7 @@
 package api;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import core.Configuration;
 import data.TaxRateResponse;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -10,9 +11,9 @@ import java.util.List;
 
 public class TaxRateClient {
 
-    private static final String API_URL = "https://sales-tax-by-api-ninjas.p.rapidapi.com/v1/salestax";
-    private static final String API_KEY = "6b45072e8cmshabbcd707434ba6ap1d4fbdjsn0350b846cc80";
-    private static final String API_HOST = "sales-tax-by-api-ninjas.p.rapidapi.com";
+    private static final String API_URL = Configuration.getApiUrl();
+    private static final String API_KEY = Configuration.getApiKey();
+    private static final String API_HOST = Configuration.getApiHost();
     private final Gson gson;
 
     public TaxRateClient() {
