@@ -13,7 +13,7 @@ public class ShoppingMainConsole {
     public static void main(String[] args) {
         Scanner scnr = new Scanner(System.in);
         TaxRateResponse taxRateResponse = enterTaxZipCode(scnr);
-        Cart.setTaxRate(taxRateResponse.getTaxRate());
+        Cart.setTaxRate(taxRateResponse.getTotalRate());
         while (true) {
             shoppingCartInput(scnr);
         }
@@ -297,10 +297,10 @@ public class ShoppingMainConsole {
                 }
 
                 TaxRateClient taxRateClient = new TaxRateClient();
-                TaxRateResponse taxRateResponse = taxRateClient.getTaxRateByZip(zipCode);
+                TaxRateResponse taxRateResponse = taxRateClient.getTaxRateFromZipCityState(zipCode, null, null);
 
                 if (taxRateResponse != null) {
-                    System.out.println("Tax rate: " + taxRateResponse.getTaxRate());
+                    System.out.println("Tax rate: " + taxRateResponse.getTotalRate());
                     return taxRateResponse;
                 } else {
                     System.out.println("Failed to retrieve tax rate. Please try again.");
