@@ -9,14 +9,7 @@ import java.util.ArrayList;
  */
 public class ShoppingCart {
 
-    @FieldLabel("Items")
     private ArrayList<ShoppingItem> items = new ArrayList<ShoppingItem>();
-
-    @FieldLabel("Subtotal")
-    private double subTotal = 0.0;
-
-    @FieldLabel("Total")
-    private double total = 0.0;
 
     @FieldLabel("Tax Rate")
     private double taxRate = 0.0;
@@ -24,19 +17,18 @@ public class ShoppingCart {
     @FieldLabel("Shipping Cost")
     private double shippingCost = 0.0;
 
-    @FieldLabel("Flat Shipping")
     private boolean flatShipping = false;
+
+    @FieldLabel("Total Tax")
+    private double totalTax = 0.0;
+    @FieldLabel("Subtotal")
+    private double subTotal = 0.0;
+
+    @FieldLabel("Total")
+    private double total = 0.0;
 
     public ArrayList<ShoppingItem> getItems() {
         return items;
-    }
-
-    public double getSubTotal() {
-        return subTotal;
-    }
-
-    public double getTotal() {
-        return total;
     }
 
     public double getTaxRate() {
@@ -47,9 +39,42 @@ public class ShoppingCart {
         return shippingCost;
     }
 
+    public boolean getFlatShipping() {
+        return flatShipping;
+    }
+
+    public double getTotalTax() {
+        return totalTax;
+    }
+
+    public double getSubTotal() {
+        return subTotal;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
 
     public void setItems(ArrayList<ShoppingItem> items) {
         this.items = items;
+    }
+
+
+    public void setTaxRate(double taxRate) {
+        this.taxRate = taxRate;
+    }
+
+    public void setShippingCost(double shippingCost) {
+        this.shippingCost = shippingCost;
+    }
+
+    public void setFlatShipping(boolean flatShipping) {
+        this.flatShipping = flatShipping;
+    }
+
+    public void setTotalTax(double totalTax) {
+        this.totalTax = totalTax;
     }
 
     public void setSubTotal(double subTotal) {
@@ -58,14 +83,6 @@ public class ShoppingCart {
 
     public void setTotal(double total) {
         this.total = total;
-    }
-
-    public void setTaxRate(double taxRate) {
-        this.taxRate = taxRate;
-    }
-
-    public void setShippingCost(double shippingCost) {
-        this.shippingCost = shippingCost;
     }
 
     /**
@@ -116,6 +133,12 @@ public class ShoppingCart {
      */
     public void clearCart() {
         items.clear();
+    }
+
+    public double calculateTotalTax() {
+        totalTax = 0.0;
+        totalTax += calculateSubTotal() * (taxRate / 100);
+        return totalTax;
     }
 
     /**

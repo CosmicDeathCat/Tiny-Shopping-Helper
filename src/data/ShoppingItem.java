@@ -20,10 +20,8 @@ public class ShoppingItem {
     @FieldLabel("Amount Off")
     private double amountOff = 0.0;
 
-    @FieldLabel("Amount X")
     private int amountX = 0;
 
-    @FieldLabel("Amount Y")
     private int amountY = 0;
 
     @FieldLabel("Tax Rate")

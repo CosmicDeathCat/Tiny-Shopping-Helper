@@ -1,5 +1,6 @@
 package ui;
 
+import annotations.FieldLabel;
 import api.TaxRateClient;
 import data.SaleType;
 import data.ShoppingCart;
@@ -8,7 +9,9 @@ import data.TaxRateResponse;
 import utility.DataSaver;
 
 import javax.swing.*;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -47,37 +50,51 @@ public class ShoppingMainConsole {
      * @param cart The shopping cart to print the receipt for.
      */
     public static void printReceipt(ShoppingCart cart) {
-        String headerFormat = "%-20s%-10s%-10s%-10s%-10s%-10s%n";
-        String itemFormat = "%-20s%-10d%-10.2f%-10.2f%-10.2f%-10.2f%n";
-
         // Calculate totals
+        cart.calculateTotalTax();
         cart.calculateSubTotal();
         cart.calculateTotal();
 
-        // Print header
-        System.out.printf(headerFormat, "Item", "Quantity", "Price", "Tax Rate", "SubTotal", "Total");
-
-        // Print each item
-        for (ShoppingItem item : cart.getItems()) {
-            System.out.printf(itemFormat,
-                    item.getName(),
-                    item.getQuantity(),
-                    item.getPrice(),
-                    item.getTaxRate(),
-                    item.getTotalPrice(false, false),
-                    item.getTotalPrice(true, true)
-            );
+        // Print each item in the cart
+        if (!cart.getItems().isEmpty()) {
+            for (ShoppingItem item : cart.getItems()) {
+                printObjectFields(item);
+                System.out.println(); // Separator between items
+            }
         }
 
-        // Print SubTotal and Total
-        System.out.println("\nSubTotal: " + String.format("%.2f", cart.getSubTotal()));
-        System.out.println("Shipping Cost: " + String.format("%.2f", cart.getShippingCost()));
-        System.out.println("Total: " + String.format("%.2f", cart.getTotal()));
+        // Print separator
+        System.out.println("---- Cart Totals ----");
+
+        // Print fields of ShoppingCart
+        printObjectFields(cart);
 
         // Save to file
         JFrame frame = new JFrame();
         DataSaver.saveWithDialog(cart, frame);
     }
+
+    /**
+     * Prints the fields of an object.
+     * @param obj The object to print the fields of.
+     */
+    public static void printObjectFields(Object obj) {
+        Field[] fields = obj.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(FieldLabel.class)) {
+                try {
+                    field.setAccessible(true);
+                    System.out.printf("%s: %s%n",
+                            field.getAnnotation(FieldLabel.class).value(),
+                            field.get(obj));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
     /**
      * Gets the user's input for what they want to do with their shopping cart.
