@@ -1,0 +1,28 @@
+package ui;
+
+import javax.swing.*;
+
+public class TinyShoppingHelperGUI extends JFrame {
+
+    private JPanel TSHPanel;
+    private JLabel TitleLabel;
+    private JTextField textField1;
+    private JButton enterZipCodeButton;
+
+    public TinyShoppingHelperGUI() {
+        super("Tiny Shopping Helper");
+        setTitle("Tiny Shopping Helper");
+        setContentPane(TSHPanel);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new TinyShoppingHelperGUI();
+    }
+
+    private void createUIComponents() {
+
+    }
+}
