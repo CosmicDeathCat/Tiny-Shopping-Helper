@@ -50,26 +50,22 @@ public class ShoppingMainConsole {
      * @param cart The shopping cart to print the receipt for.
      */
     public static void printReceipt(ShoppingCart cart) {
-        // Calculate totals
         cart.calculateTotalTax();
         cart.calculateSubTotal();
         cart.calculateTotal();
 
-        // Print each item in the cart
         if (!cart.getItems().isEmpty()) {
             for (ShoppingItem item : cart.getItems()) {
                 printObjectFields(item);
-                System.out.println(); // Separator between items
+                System.out.println();
             }
         }
 
         // Print separator
         System.out.println("---- Cart Totals ----");
 
-        // Print fields of ShoppingCart
         printObjectFields(cart);
 
-        // Save to file
         JFrame frame = new JFrame();
         DataSaver.saveWithDialog(cart, frame);
     }
@@ -330,14 +326,13 @@ public class ShoppingMainConsole {
      * @return
      */
     public static TaxRateResponse enterTaxZipCode(Scanner scnr){
-        String zipCodePattern = "^[0-9]{5}(?:-[0-9]{4})?$"; // Regex for validating US zip code
+        String zipCodePattern = "^[0-9]{5}(?:-[0-9]{4})?$";
 
         while (true) {
             try {
                 System.out.print("Enter your zip code to get the tax rate: ");
                 String zipCode = scnr.nextLine();
 
-                // Check if the zip code matches the pattern
                 if (!Pattern.matches(zipCodePattern, zipCode)) {
                     System.out.println("Invalid zip code format. Please enter a 5-digit or 9-digit zip code.");
                     continue;
@@ -358,23 +353,6 @@ public class ShoppingMainConsole {
             }
         }
     }
-
-    /**
-     * Gets the user's input for the tax rate of the item.
-     * @param scnr
-     * @return
-     */
-//    public static double enterItemTaxRate(Scanner scnr) {
-//        try {
-//            System.out.print("Enter the tax rate of the item: ");
-//            double taxRate = scnr.nextDouble();
-//            scnr.nextLine();
-//            return taxRate;
-//        } catch (Exception e) {
-//            System.out.print("Invalid tax rate. Enter a number.");
-//            return enterItemTaxRate(scnr);
-//        }
-//    }
 
     /**
      * Gets the user's input for if the item has shipping.

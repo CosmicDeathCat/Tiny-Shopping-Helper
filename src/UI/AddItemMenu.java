@@ -34,6 +34,10 @@ public class AddItemMenu extends JFrame {
 
     private SaleType selectedSaleType = SaleType.None;
 
+    /**
+     * This is a contructor that creates the add item menu
+     * @param mainForm
+     */
     public AddItemMenu(ShoppingMainGUI mainForm) {
         this.mainForm = mainForm;
         getContentPane().setLayout(new BorderLayout());
@@ -85,6 +89,10 @@ public class AddItemMenu extends JFrame {
         itemShippingInput.setVisible(false);
 
         itemShippingDropDown.addActionListener(new ActionListener() {
+            /**
+             * This method shows the shipping cost input if the user selects yes
+             * @param e
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedOption = (String) itemShippingDropDown.getSelectedItem();
@@ -141,6 +149,10 @@ public class AddItemMenu extends JFrame {
         condition2Input.setVisible(false);
 
         saleTypeDropDown.addActionListener(new ActionListener() {
+            /**
+             * This method shows the condition inputs based on the sale type selected
+             * @param e
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 selectedSaleType = (SaleType) saleTypeDropDown.getSelectedItem();
@@ -150,10 +162,14 @@ public class AddItemMenu extends JFrame {
 
         gbc.gridx = 0;
         gbc.gridy = 8;
-        gbc.gridwidth = 2; // Span two columns
+        gbc.gridwidth = 2;
         contentPanel.add(addItemButton, gbc);
 
         addItemButton.addActionListener(new ActionListener() {
+            /**
+             * This method adds an item to the cart
+             * @param e the event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 String itemName = itemNameInput.getText();
@@ -233,8 +249,11 @@ public class AddItemMenu extends JFrame {
         getContentPane().add(contentPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * This method sets the visibility of the condition inputs based on the sale type selected
+     */
     private void updateConditionVisibility() {
-        // Show/hide condition components based on the selected sale type
+
         switch (selectedSaleType) {
             case None -> {
                 saleTypeConditon1.setVisible(false);

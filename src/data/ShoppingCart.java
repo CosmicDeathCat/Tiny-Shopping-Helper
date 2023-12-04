@@ -2,7 +2,11 @@ package data;
 
 import annotations.FieldLabel;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * This class contains methods for a shopping cart.
@@ -87,6 +91,7 @@ public class ShoppingCart {
 
     /**
      * This method adds an item to the cart.
+     *
      * @param item
      */
     public void addItem(ShoppingItem item) {
@@ -95,6 +100,7 @@ public class ShoppingCart {
 
     /**
      * This method edits an item in the cart.
+     *
      * @param item
      * @param name
      */
@@ -122,6 +128,7 @@ public class ShoppingCart {
 
     /**
      * This method removes an item from the cart.
+     *
      * @param item
      */
     public void removeItem(ShoppingItem item) {
@@ -160,7 +167,6 @@ public class ShoppingCart {
         for (ShoppingItem item : items) {
             total += item.getTotalPrice(true, true);
         }
-        total += calculateShippingCost();
         return total;
     }
 
@@ -186,4 +192,101 @@ public class ShoppingCart {
         this.taxRate = 0.0;
         this.shippingCost = 0.0;
     }
+
+    public void saveCart(String path) {
+        var file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
+
+        var GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+        var json = GSON.toJson(this);
+        try {
+            var writer = new java.io.FileWriter(file);
+            writer.write(json);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadCart(String path) {
+        var file = new File(path);
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            var reader = new java.io.FileReader(file);
+            var GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+            var json = GSON.fromJson(reader, ShoppingCart.class);
+            this.items = json.items;
+            this.subTotal = json.subTotal;
+            this.total = json.total;
+            this.taxRate = json.taxRate;
+            this.shippingCost = json.shippingCost;
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * This method saves the receipt of the cart in either a text or csv file.
+     *
+     * @param path
+     * @param extension
+     */
+    public void saveReceipt(String path, String extension) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
+        try (FileWriter writer = new FileWriter(file)) {
+            Locale locale = Locale.US;
+
+            if (extension.equals("txt")) {
+                writer.write(String.format(locale, "%-20s %-9s %-9s %-11s %-15s %-12s\n",
+                        "Name", "Price", "Quantity", "Tax Rate", "Shipping Cost", "Total Price"));
+                writer.write(String.format(locale, "%-20s %-9s %-9s %-11s %-15s %-12s\n",
+                        "--------------------", "---------", "---------", "-----------", "---------------", "------------"));
+
+                for (ShoppingItem item : items) {
+                    writer.write(String.format(locale, "%-20s $%-8.2f %-9d $%-10.2f $%-14.2f $%-11.2f\n",
+                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxRate(),
+                            item.getShippingCost(), item.getTotalPrice(false, true)));
+                }
+
+                writer.write("--------------------------------------------------------" +
+                        "----------------------\n");
+
+                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Subtotal:", calculateSubTotal()));
+                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Total Tax:", calculateTotalTax()));
+                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Shipping Cost:", calculateShippingCost()));
+                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Total:", calculateTotal()));
+
+            } else if (extension.equals("csv")) {
+                writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Rate", "Shipping Cost", "Total Price") + "\n");
+
+                for (ShoppingItem item : items) {
+                    writer.write(String.format(locale, "\"%s\",%.2f,%d,%.2f,%.2f,%.2f\n",
+                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxRate(),
+                            item.getShippingCost(), item.getTotalPrice(false, true)));
+                }
+
+                writer.write("\n");
+                writer.write(String.format(locale, "Subtotal,%s\n", String.format(locale, "%.2f", calculateSubTotal())));
+                writer.write(String.format(locale, "Total Tax,%s\n", String.format(locale, "%.2f", calculateTotalTax())));
+                writer.write(String.format(locale, "Shipping Cost,%s\n", String.format(locale, "%.2f", calculateShippingCost())));
+                writer.write(String.format(locale, "Total,%s\n", String.format(locale, "%.2f", calculateTotal())));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
 }

@@ -65,7 +65,7 @@ public class SalesCalculator {
      * @return
      */
     public static double amountOff (ShoppingItem item, double amountOff) {
-        return item.getPrice() - amountOff;
+        return item.getPrice() * item.getQuantity() - amountOff;
     }
     /**
      * Calculates the price of an item with an amount off each sale

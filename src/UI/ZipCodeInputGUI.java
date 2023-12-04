@@ -15,11 +15,17 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.regex.Pattern;
 
+/**
+ * This class contains methods for the ZIP Code Input GUI
+ */
 public class ZipCodeInputGUI extends JFrame {
     private JTextField userInputZipCode;
     private JButton enterZipCodeButton;
     private JLabel inputQuestionLabel;
 
+    /**
+     * This is a constructor for the ZIP Code Input GUI
+     */
     public ZipCodeInputGUI() {
         setTitle("ZIP Code Input");
         setSize(300, 150);
@@ -34,6 +40,10 @@ public class ZipCodeInputGUI extends JFrame {
         panel.add(enterZipCodeButton, BorderLayout.SOUTH);
 
         enterZipCodeButton.addActionListener(new ActionListener() {
+            /**
+             * This method is called when the user clicks the enter zip code button
+             * @param e
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 String zipCode = userInputZipCode.getText();
@@ -54,17 +64,31 @@ public class ZipCodeInputGUI extends JFrame {
         add(panel);
     }
 
+    /**
+     * This method checks if the ZIP Code is valid
+     * @param zipCode
+     * @return
+     */
     private boolean isValidUSZipCode(String zipCode) {
         String regex = "^\\d{5}$|^\\d{5}-\\d{4}$";
         return Pattern.matches(regex, zipCode);
     }
 
+    /**
+     * This method fetches the tax rate from the ZIP Code
+     * @param zipCode
+     * @return
+     */
     private double fetchTaxRate(String zipCode) {
         TaxRateClient taxRateClient = new TaxRateClient();
         TaxRateResponse taxRateResponse = taxRateClient.getTaxRateFromZipCityState(zipCode, null, null);
         return taxRateResponse.getTotalRate();
     }
 
+    /**
+     * This is the main method
+     * @param args
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             ZipCodeInputGUI zipCodeInputGUI = new ZipCodeInputGUI();

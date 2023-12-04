@@ -126,6 +126,9 @@ public class ShoppingItem {
             subtotal += this.shippingCost;
         }
         if (includeTax) {
+            if (this.taxRate == 0.0) {
+                return subtotal;
+            }
             return Math.round(subtotal * (1 + this.taxRate) * 100.0) / 100.0;
         }
         return subtotal;
@@ -136,10 +139,10 @@ public class ShoppingItem {
      */
     public ShoppingItem() {
         this.name = "Item";
-        this.quantity = 1;
-        this.price = 1.0;
+        this.quantity = 0;
+        this.price = 0.0;
         this.saleType = SaleType.None;
-        this.taxRate = 1.0;
+        this.taxRate = 0.0;
     }
 
     /**
@@ -158,6 +161,10 @@ public class ShoppingItem {
         this.taxRate = taxRate;
     }
 
+    /**
+     * Constructor for a shopping item
+     * @return
+     */
     @Override
     public String toString() {
         return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false, false) + "\nTotal: " + getTotalPrice(true, true);
