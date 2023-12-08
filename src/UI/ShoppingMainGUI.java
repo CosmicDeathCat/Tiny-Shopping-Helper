@@ -6,6 +6,8 @@ import data.ShoppingItem;
 import utility.DataSaver;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -14,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 public class ShoppingMainGUI extends JFrame{
     private JPanel TSHPanel;
@@ -53,10 +56,65 @@ public class ShoppingMainGUI extends JFrame{
                 new String[]{
                         "Item Name", "Item Price", "Item Quantity", "Item Tax","Shipping Cost", "Item Total"
                 },
-                0
-        );
+                0){
+            /**
+             * this is a method to make the table editable
+             * @param row             the row whose value is to be queried
+             * @param column          the column whose value is to be queried
+             * @return
+             */
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return column < 5;
+        }};
 
         shoppingCartTable.setModel(tableModel);
+
+        tableModel.addTableModelListener(new TableModelListener() {
+            /**
+             * this is a method to listen for changes in the table
+             * @param e
+             */
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                int row = e.getFirstRow();
+                int column = e.getColumn();
+                if (row >= 0 && column >= 0) {
+                    DefaultTableModel model = (DefaultTableModel) e.getSource();
+                    ShoppingItem item = shoppingCart.getItems().get(row);
+
+                    try {
+                        switch (column) {
+                            case 0:
+                                item.setName((String) model.getValueAt(row, column));
+                                break;
+                            case 1:
+                                String priceValue = (String) model.getValueAt(row, column);
+                                item.setPrice(Double.parseDouble(priceValue.replaceAll("[^\\d.]", "")));
+                                break;
+                            case 2:
+                                String quantityValue = (String) model.getValueAt(row, column);
+                                item.setQuantity(Integer.parseInt(quantityValue.replaceAll("[^\\d.]", "")));
+                                break;
+                            case 4:
+                                String shippingCostValue = (String) model.getValueAt(row, column);
+                                item.setShippingCost(Double.parseDouble(shippingCostValue.replaceAll("[^\\d.]", "")));
+                                break;
+                        }
+
+                        SwingUtilities.invokeLater(() -> {
+                            String formattedTotal = String.format(Locale.US, "%.2f", item.getTotalPrice(false, true));
+                            model.setValueAt(formattedTotal, row, 5);
+                            getCartTotal();
+                        });
+
+                    } catch (NumberFormatException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+
         addItemButton.addActionListener(new ActionListener() {
             /**
              * this is a method to add an item to the cart

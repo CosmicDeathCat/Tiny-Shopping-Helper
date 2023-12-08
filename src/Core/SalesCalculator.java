@@ -20,15 +20,15 @@ public class SalesCalculator {
      * Calculates the price of an item with a buy x get percent off total sale
      * @param item
      * @param x
-     * @param subtotal
      * @param percentOff
      * @return
      */
-    public static double buyXgetPercentOffTotal (ShoppingItem item, int x, double subtotal, double percentOff) {
-        if (item.getQuantity() >= x) {
-            return subtotal - (subtotal * percentOff / 100);
+    public static ItemSaleInfo buyXgetPercentOffTotal (ShoppingItem item, int x, double percentOff) {
+        double subtotal = item.getPrice() * item.getQuantity();
+        if( item.getQuantity() >= x){
+            return new ItemSaleInfo(subtotal, subtotal - (subtotal * percentOff) / 100);
         }
-        return item.getPrice() * item.getQuantity();
+        return new ItemSaleInfo(subtotal, 0.0);
     }
 
     /**
@@ -38,11 +38,11 @@ public class SalesCalculator {
      * @param percentOff
      * @return
      */
-    public static double buyXgetYPercentOff (ShoppingItem item, int x, double percentOff) {
+    public static ItemSaleInfo buyXgetYPercentOff(ShoppingItem item, int x, double percentOff){
         if (item.getQuantity() >= x) {
-            return item.getPrice() - (item.getPrice() * percentOff / 100);
+            return new ItemSaleInfo(item.getPrice() * item.getQuantity(), percentOff);
         }
-        return item.getPrice() * item.getQuantity();
+        return new ItemSaleInfo(item.getPrice() * item.getQuantity(), 0);
     }
     /**
      * Calculates the price of an item with a buy x get y free sale

@@ -1,6 +1,7 @@
 package data;
 
 import annotations.FieldLabel;
+import core.ItemSaleInfo;
 import core.SalesCalculator;
 
 /**
@@ -33,6 +34,8 @@ public class ShoppingItem {
     @FieldLabel("Shipping Cost")
     private double shippingCost = 0.0;
 
+    private ShoppingCart cart;
+
     public String getName () {
         return name;
     }
@@ -64,6 +67,8 @@ public class ShoppingItem {
     public boolean getHasShipping () { return hasShipping; }
 
     public double getShippingCost () { return shippingCost; }
+
+    public ShoppingCart getCart () { return cart; }
 
     public void setName (String name) { this.name = name; }
 
@@ -104,10 +109,12 @@ public class ShoppingItem {
                 subtotal = SalesCalculator.percentOff(this, this.percentOff);
             }
             case BuyXGetYPercentOff -> {
-                subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff);
+                subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff).price();
             }
             case BuyXGetPercentOffTotal -> {
-                subtotal = SalesCalculator.buyXgetPercentOffTotal(this, this.amountX, this.price * this.quantity, this.percentOff);
+                ItemSaleInfo saleInfo = SalesCalculator.buyXgetPercentOffTotal(this, this.amountX, this.percentOff);
+                percentOff = saleInfo.percentOffTotal();
+                subtotal = saleInfo.price();
             }
             case BuyXGetYFree -> {
                 subtotal = SalesCalculator.buyXgetYFree(this, this.amountX, this.amountY);
@@ -138,6 +145,7 @@ public class ShoppingItem {
      * Default constructor for a shopping item
      */
     public ShoppingItem() {
+        this.cart = cart;
         this.name = "Item";
         this.quantity = 0;
         this.price = 0.0;
@@ -153,7 +161,8 @@ public class ShoppingItem {
      * @param saleType
      * @param taxRate
      */
-    public ShoppingItem(String name, int quantity, double price, SaleType saleType, double taxRate) {
+    public ShoppingItem(ShoppingCart cart, String name, int quantity, double price, SaleType saleType, double taxRate) {
+        this.cart = cart;
         this.name = name;
         this.quantity = quantity;
         this.price = price;
