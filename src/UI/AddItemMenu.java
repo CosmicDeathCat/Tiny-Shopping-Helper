@@ -203,9 +203,9 @@ public class AddItemMenu extends JFrame {
                     }
 
                     case BuyXGetPercentOffTotal -> {
-                        item.setPercentOff(Double.parseDouble(condition1Input.getText()));
+                        item.setPercentOff(Double.parseDouble(condition2Input.getText()));
                         item.setAmountOff(0.0);
-                        item.setAmountX(Integer.parseInt(condition2Input.getText()));
+                        item.setAmountX(Integer.parseInt(condition1Input.getText()));
                         item.setAmountY(0);
                     }
                     case BuyXGetYPercentOff -> {

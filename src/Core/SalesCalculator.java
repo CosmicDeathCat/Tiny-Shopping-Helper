@@ -1,5 +1,6 @@
 package core;
 
+import data.ShoppingCart;
 import data.ShoppingItem;
 
 /**
@@ -23,12 +24,12 @@ public class SalesCalculator {
      * @param percentOff
      * @return
      */
-    public static ItemSaleInfo buyXgetPercentOffTotal (ShoppingItem item, int x, double percentOff) {
-        double subtotal = item.getPrice() * item.getQuantity();
-        if( item.getQuantity() >= x){
-            return new ItemSaleInfo(subtotal, subtotal - (subtotal * percentOff) / 100);
+    public static double buyXgetPercentOffTotal (double subtotal, ShoppingItem item, int x, double percentOff) {
+
+        if (item.getQuantity() >= x) {
+            return subtotal - ((subtotal * percentOff) / 100);
         }
-        return new ItemSaleInfo(subtotal, 0.0);
+        return subtotal;
     }
 
     /**
@@ -38,11 +39,11 @@ public class SalesCalculator {
      * @param percentOff
      * @return
      */
-    public static ItemSaleInfo buyXgetYPercentOff(ShoppingItem item, int x, double percentOff){
+    public static double buyXgetYPercentOff (ShoppingItem item, int x, double percentOff) {
         if (item.getQuantity() >= x) {
-            return new ItemSaleInfo(item.getPrice() * item.getQuantity(), percentOff);
+            return item.getPrice() * item.getQuantity() - ((item.getPrice() * item.getQuantity()) * percentOff / 100);
         }
-        return new ItemSaleInfo(item.getPrice() * item.getQuantity(), 0);
+        return item.getPrice() * item.getQuantity();
     }
     /**
      * Calculates the price of an item with a buy x get y free sale
@@ -79,14 +80,5 @@ public class SalesCalculator {
             subtotal += item.getPrice() - amountOff;
         }
         return subtotal;
-    }
-    /**
-     * Calculates the price of an item with an amount off total sale
-     * @param subTotal
-     * @param amountOff
-     * @return
-     */
-    public static double amountOffTotal (double subTotal, double amountOff) {
-        return subTotal - amountOff;
     }
 }

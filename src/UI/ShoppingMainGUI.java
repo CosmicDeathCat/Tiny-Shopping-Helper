@@ -19,6 +19,8 @@ import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class ShoppingMainGUI extends JFrame{
+
+    public static ShoppingCart shoppingCart = new ShoppingCart();
     private JPanel TSHPanel;
     private JPanel btnBar;
     private JLabel applicationNameLabel;
@@ -36,7 +38,6 @@ public class ShoppingMainGUI extends JFrame{
 
     private double taxRate;
 
-    private ShoppingCart shoppingCart = new ShoppingCart();
 
     /**
      * this is a constructor for the main GUI
@@ -53,19 +54,19 @@ public class ShoppingMainGUI extends JFrame{
         contentPane.add(TSHPanel, BorderLayout.CENTER);
 
         DefaultTableModel tableModel = new DefaultTableModel(
-                new String[]{
-                        "Item Name", "Item Price", "Item Quantity", "Item Tax","Shipping Cost", "Item Total"
-                },
-                0){
-            /**
-             * this is a method to make the table editable
-             * @param row             the row whose value is to be queried
-             * @param column          the column whose value is to be queried
-             * @return
-             */
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return column < 5;
+            new String[]{
+                    "Item Name", "Item Price", "Item Quantity", "Item Tax","Shipping Cost", "Item Total"
+            },
+            0){
+        /**
+         * this is a method to make the table editable
+         * @param row             the row whose value is to be queried
+         * @param column          the column whose value is to be queried
+         * @return
+         */
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column < 5;
         }};
 
         shoppingCartTable.setModel(tableModel);
@@ -168,8 +169,14 @@ public class ShoppingMainGUI extends JFrame{
              int result = fileChooser.showSaveDialog(ShoppingMainGUI.this);
              if (result == JFileChooser.APPROVE_OPTION) {
                  String path = fileChooser.getSelectedFile().getAbsolutePath();
-                 path = path.substring(0, path.lastIndexOf('.'));
-                 path += ".json";
+                 if(path.lastIndexOf('.') == -1){
+                     path += ".json";
+                 }
+                 else if(!path.substring(path.lastIndexOf('.')).equals(".json")){
+                     path = path.substring(0, path.lastIndexOf('.'));
+                     path += ".json";
+                 }
+
                  shoppingCart.saveCart(path);
              }
          }

@@ -1,6 +1,7 @@
 package data;
 
 import annotations.FieldLabel;
+import core.SalesCalculator;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +32,9 @@ public class ShoppingCart {
     @FieldLabel("Total")
     private double total = 0.0;
 
+    @FieldLabel("Amount Off")
+    private double amountOff = 0.0;
+
     public ArrayList<ShoppingItem> getItems() {
         return items;
     }
@@ -59,6 +63,10 @@ public class ShoppingCart {
         return total;
     }
 
+    public double getAmountOff() {
+        return amountOff;
+    }
+
 
     public void setItems(ArrayList<ShoppingItem> items) {
         this.items = items;
@@ -67,6 +75,10 @@ public class ShoppingCart {
 
     public void setTaxRate(double taxRate) {
         this.taxRate = taxRate;
+    }
+
+    public void setAmountOff(double amountOff) {
+        this.amountOff = amountOff;
     }
 
     public void setShippingCost(double shippingCost) {
@@ -87,6 +99,14 @@ public class ShoppingCart {
 
     public void setTotal(double total) {
         this.total = total;
+    }
+
+    public void addAmountOff(double amountOff) {
+        this.amountOff += amountOff;
+    }
+
+    public void subtractAmountOff(double amountOff) {
+        this.amountOff -= amountOff;
     }
 
     /**
@@ -153,9 +173,19 @@ public class ShoppingCart {
      */
     public double calculateSubTotal() {
         subTotal = 0.0;
+        amountOff = 0.0;
         for (ShoppingItem item : items) {
             subTotal += item.getTotalPrice(false, false);
         }
+        for (ShoppingItem item : items) {
+
+            switch (item.getSaleType()) {
+                case BuyXGetPercentOffTotal -> addAmountOff(SalesCalculator.buyXgetPercentOffTotal(subTotal, item, item.getAmountX(), item.getPercentOff()));
+                case AmountOffTotal -> addAmountOff(item.getAmountOff());
+                default -> {}
+            }
+        }
+        subTotal -= amountOff;
         return subTotal;
     }
 
@@ -164,9 +194,18 @@ public class ShoppingCart {
      */
     public double calculateTotal() {
         total = 0.0;
+        amountOff = 0.0;
         for (ShoppingItem item : items) {
             total += item.getTotalPrice(true, true);
         }
+        for (ShoppingItem item : items) {
+            switch (item.getSaleType()) {
+                case BuyXGetPercentOffTotal -> addAmountOff(SalesCalculator.buyXgetPercentOffTotal(total, item, item.getAmountX(), item.getPercentOff()));
+                case AmountOffTotal -> addAmountOff(item.getAmountOff());
+                default -> {}
+            }
+        }
+        total -= amountOff;
         return total;
     }
 

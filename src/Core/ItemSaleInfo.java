@@ -1,3 +1,3 @@
 package core;
 
-public record ItemSaleInfo(double price, double percentOffTotal) {}
+public record ItemSaleInfo (double price, double amountOff){}

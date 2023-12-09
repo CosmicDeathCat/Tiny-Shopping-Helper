@@ -1,7 +1,6 @@
 package data;
 
 import annotations.FieldLabel;
-import core.ItemSaleInfo;
 import core.SalesCalculator;
 
 /**
@@ -33,8 +32,6 @@ public class ShoppingItem {
 
     @FieldLabel("Shipping Cost")
     private double shippingCost = 0.0;
-
-    private ShoppingCart cart;
 
     public String getName () {
         return name;
@@ -68,7 +65,6 @@ public class ShoppingItem {
 
     public double getShippingCost () { return shippingCost; }
 
-    public ShoppingCart getCart () { return cart; }
 
     public void setName (String name) { this.name = name; }
 
@@ -109,12 +105,10 @@ public class ShoppingItem {
                 subtotal = SalesCalculator.percentOff(this, this.percentOff);
             }
             case BuyXGetYPercentOff -> {
-                subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff).price();
+                subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff);
             }
             case BuyXGetPercentOffTotal -> {
-                ItemSaleInfo saleInfo = SalesCalculator.buyXgetPercentOffTotal(this, this.amountX, this.percentOff);
-                percentOff = saleInfo.percentOffTotal();
-                subtotal = saleInfo.price();
+                subtotal = this.price * this.quantity;
             }
             case BuyXGetYFree -> {
                 subtotal = SalesCalculator.buyXgetYFree(this, this.amountX, this.amountY);
@@ -126,7 +120,7 @@ public class ShoppingItem {
                 subtotal = SalesCalculator.amountOffEach(this, this.amountOff);
             }
             case AmountOffTotal -> {
-                subtotal = SalesCalculator.amountOffTotal(this.price * this.quantity, this.amountOff);
+                subtotal = this.price * this.quantity;
             }
         }
         if (includeShipping && this.hasShipping) {
@@ -145,7 +139,6 @@ public class ShoppingItem {
      * Default constructor for a shopping item
      */
     public ShoppingItem() {
-        this.cart = cart;
         this.name = "Item";
         this.quantity = 0;
         this.price = 0.0;
@@ -161,8 +154,7 @@ public class ShoppingItem {
      * @param saleType
      * @param taxRate
      */
-    public ShoppingItem(ShoppingCart cart, String name, int quantity, double price, SaleType saleType, double taxRate) {
-        this.cart = cart;
+    public ShoppingItem(String name, int quantity, double price, SaleType saleType, double taxRate) {
         this.name = name;
         this.quantity = quantity;
         this.price = price;
@@ -176,7 +168,7 @@ public class ShoppingItem {
      */
     @Override
     public String toString() {
-        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false, false) + "\nTotal: " + getTotalPrice(true, true);
+        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType.toString() + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false, false) + "\nTotal: " + getTotalPrice(true, true);
     }
 
     
