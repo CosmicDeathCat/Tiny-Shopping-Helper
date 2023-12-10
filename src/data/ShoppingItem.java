@@ -19,9 +19,9 @@ public class ShoppingItem {
     private double percentOff = 0.0;
     @FieldLabel("Amount Off")
     private double amountOff = 0.0;
-
+    @FieldLabel("Amount X")
     private int amountX = 0;
-
+    @FieldLabel("Amount Y")
     private int amountY = 0;
 
     @FieldLabel("Tax Cost")
@@ -35,6 +35,8 @@ public class ShoppingItem {
 
     @FieldLabel("Shipping Cost")
     private double shippingCost = 0.0;
+    @FieldLabel("Amount Saved")
+    private double amountSaved = 0.0;
 
     public String getName () {
         return name;
@@ -70,6 +72,40 @@ public class ShoppingItem {
 
     public double getShippingCost () { return shippingCost; }
 
+    public double getAmountSaved () {
+
+        double subtotal = this.price * this.quantity;
+        double postSalePrice = subtotal;
+        switch (saleType){
+
+            case None -> {
+            }
+            case PercentOff -> {
+                postSalePrice = SalesCalculator.percentOff(this, this.percentOff);
+            }
+            case BuyXGetYPercentOff -> {
+                postSalePrice = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff);
+            }
+            case BuyXGetPercentOffTotal -> {
+                postSalePrice = SalesCalculator.buyXgetPercentOffTotal(subtotal, this, this.amountX, this.percentOff);
+            }
+            case BuyXGetYFree -> {
+                postSalePrice = SalesCalculator.buyXgetYFree(this, this.amountX, this.amountY);
+            }
+            case AmountOff -> {
+                postSalePrice = SalesCalculator.amountOff(this, this.amountOff);
+            }
+            case AmountOffEach -> {
+                postSalePrice = SalesCalculator.amountOffEach(this, this.amountOff);
+            }
+            case AmountOffTotal -> {
+                postSalePrice -= this.amountOff;
+            }
+        }
+        amountSaved = subtotal - postSalePrice;
+        return amountSaved;
+    }
+
     public void setName (String name) { this.name = name; }
 
     public void setQuantity (int quantity) { this.quantity = quantity; }
@@ -94,18 +130,18 @@ public class ShoppingItem {
 
     public void setShippingCost (double shippingCost) { this.shippingCost = shippingCost; }
 
+    public void setAmountSaved (double amountSaved) { this.amountSaved = amountSaved; }
+
     /**
      * Calculates the total price of an item
      * @param includeTaxCost
      * @return
      */
     public double getTotalPrice (boolean includeTaxCost) {
-        double subtotal = 0;
-
+        double subtotal = this.price * this.quantity;
         switch (saleType){
 
             case None -> {
-                subtotal = this.price * this.quantity;
             }
             case PercentOff -> {
                 subtotal = SalesCalculator.percentOff(this, this.percentOff);
@@ -114,7 +150,7 @@ public class ShoppingItem {
                 subtotal = SalesCalculator.buyXgetYPercentOff(this, this.amountX, this.percentOff);
             }
             case BuyXGetPercentOffTotal -> {
-                subtotal = this.price * this.quantity;
+                subtotal = this.percentOff * subtotal / 100;
             }
             case BuyXGetYFree -> {
                 subtotal = SalesCalculator.buyXgetYFree(this, this.amountX, this.amountY);
@@ -126,7 +162,7 @@ public class ShoppingItem {
                 subtotal = SalesCalculator.amountOffEach(this, this.amountOff);
             }
             case AmountOffTotal -> {
-                subtotal = this.price * this.quantity;
+                subtotal -= this.amountOff;
             }
         }
         if (includeTaxCost) {

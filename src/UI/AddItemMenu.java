@@ -1,5 +1,6 @@
 package ui;
 
+import core.SalesCalculator;
 import data.SaleType;
 import data.ShoppingItem;
 
@@ -145,6 +146,7 @@ public class AddItemMenu extends JDialog {
                         item.setAmountOff(0.0);
                         item.setAmountX(Integer.parseInt(condition1Input.getText()));
                         item.setAmountY(0);
+                        item.setAmountSaved(SalesCalculator.buyXgetPercentOffTotal(ShoppingMainGUI.shoppingCart.calculateSubTotal(), item, item.getAmountX(), item.getPercentOff()));
                     }
                     case BuyXGetYPercentOff -> {
                         item.setPercentOff(Double.parseDouble(condition2Input.getText()));
@@ -175,14 +177,16 @@ public class AddItemMenu extends JDialog {
                         item.setAmountOff(Double.parseDouble(condition1Input.getText()));
                         item.setAmountX(0);
                         item.setAmountY(0);
+                        item.setAmountSaved(item.getAmountOff());
                     }
                 }
-
                 item.setTaxCost(item.getTaxCost());
                 mainForm.addItemToCart(item);
+                mainForm.updateShoppingCartTableItems();
                 mainForm.getCartTotalShipping();
                 mainForm.getCartTotalTax();
                 mainForm.getCartSubtotal();
+                mainForm.getAmountSaved();
 
                 dispose();
             }

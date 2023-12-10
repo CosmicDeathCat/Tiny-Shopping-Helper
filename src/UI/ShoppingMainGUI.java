@@ -49,7 +49,7 @@ public class ShoppingMainGUI extends JFrame{
     private JLabel useFlatShippingLabel;
     private JTextField useFlatShippingInput;
     private JButton zipCodeEntryButton;
-
+    private JLabel amountSavedLabel;
 
 
     /**
@@ -62,6 +62,7 @@ public class ShoppingMainGUI extends JFrame{
         getCartTotalTax();
         getCartSubtotal();
         getCartGrandTotal();
+        getAmountSaved();
 
         useFlatShippingInput.setVisible(false);
         useFlatShippingLabel.setVisible(false);
@@ -75,7 +76,7 @@ public class ShoppingMainGUI extends JFrame{
 
         DefaultTableModel tableModel = new DefaultTableModel(
             new String[]{
-                    "Item Name", "Item Price", "Item Quantity", "Item Tax Cost","Shipping Cost", "Item Total"
+                    "Item Name", "Item Price", "Item Quantity", "Item Tax Cost","Shipping Cost", "Amount Saved", "Item Total"
             },
             0){
         /**
@@ -86,7 +87,7 @@ public class ShoppingMainGUI extends JFrame{
          */
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column != 3 && column != 5;
+                    return column != 3 && column != 5 && column != 6;
         }};
 
         shoppingCartTable.setModel(tableModel);
@@ -161,7 +162,7 @@ public class ShoppingMainGUI extends JFrame{
 
                         SwingUtilities.invokeLater(() -> {
                             String formattedTotal = String.format(Locale.US, "%.2f", item.getTotalPrice(false));
-                            model.setValueAt(formattedTotal, row, 5);
+                            model.setValueAt(formattedTotal, row, 6);
                         });
 
                     } catch (NumberFormatException ex) {
@@ -176,6 +177,7 @@ public class ShoppingMainGUI extends JFrame{
                         getCartTotalShipping();
                         getCartTotalTax();
                         getCartSubtotal();
+                        getAmountSaved();
                     }
                 }
             }
@@ -210,6 +212,7 @@ public class ShoppingMainGUI extends JFrame{
                 getCartTotalTax();
                 getCartSubtotal();
                 getCartGrandTotal();
+                getAmountSaved();
             }
                 catch (Exception ex){
                     JOptionPane.showMessageDialog(null, "Error calculating total", "Error", JOptionPane.ERROR_MESSAGE);
@@ -247,6 +250,7 @@ public class ShoppingMainGUI extends JFrame{
                 getCartTotalShipping();
                 getCartTotalTax();
                 getCartSubtotal();
+                getAmountSaved();
             }
                 catch (Exception ex){
                     JOptionPane.showMessageDialog(null, "Error deleting item", "Error", JOptionPane.ERROR_MESSAGE);
@@ -304,13 +308,15 @@ public class ShoppingMainGUI extends JFrame{
              if (result == JFileChooser.APPROVE_OPTION) {
                  String path = fileChooser.getSelectedFile().getAbsolutePath();
                  shoppingCart.loadCart(path);
+                 updateTaxRate(shoppingCart.getTaxRate());
+                 taxRateInput.setText(String.valueOf(shoppingCart.getTaxRate()));
                  updateShoppingCartTableItems();
              }
-             updateTaxRate(taxRate);
              getCartTotalShipping();
              getCartTotalTax();
              getCartSubtotal();
              getCartGrandTotal();
+             getAmountSaved();
          }
                 catch (Exception ex){
                     JOptionPane.showMessageDialog(null, "Error loading cart", "Error", JOptionPane.ERROR_MESSAGE);
@@ -360,6 +366,7 @@ public class ShoppingMainGUI extends JFrame{
                     getCartTotalTax();
                     getCartSubtotal();
                     getCartGrandTotal();
+                    getAmountSaved();
                 }
             }
         });
@@ -472,6 +479,7 @@ public class ShoppingMainGUI extends JFrame{
                         getCartTotalShipping();
                         getCartTotalTax();
                         getCartSubtotal();
+                        getAmountSaved();
                     }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
@@ -500,7 +508,7 @@ public class ShoppingMainGUI extends JFrame{
         });
 
 
-        setSize(800, 600);
+        setSize(900, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
     }
@@ -551,6 +559,14 @@ public class ShoppingMainGUI extends JFrame{
     }
 
     /**
+     * this gets the amount saved of the cart
+     */
+    public void getAmountSaved(){
+        double amountSaved = shoppingCart.getAmountSaved();
+        amountSavedLabel.setText(String.format("Amount Saved: %.2f", amountSaved));
+    }
+
+    /**
      * this gets the subtotal of the cart
      */
     public void getCartSubtotal() {
@@ -576,6 +592,7 @@ public class ShoppingMainGUI extends JFrame{
                     item.getQuantity(),
                     String.format("%.2f", item.getTaxCost()),
                     String.format("%.2f", item.getShippingCost()),
+                    String.format("%.2f", item.getAmountSaved()),
                     String.format("%.2f", item.getTotalPrice(false))
             };
             tableModel.addRow(rowData);
@@ -599,8 +616,11 @@ public class ShoppingMainGUI extends JFrame{
 
         tableModel.setValueAt(String.format("%.2f", updatedItem.getShippingCost()), rowIndex, 4);
 
+        double amountSaved = updatedItem.getAmountSaved();
+        tableModel.setValueAt(String.format("%.2f", amountSaved), rowIndex, 5);
+
         double total = updatedItem.getTotalPrice(false);
-        tableModel.setValueAt(String.format("%.2f", total), rowIndex, 5);
+        tableModel.setValueAt(String.format("%.2f", total), rowIndex, 6);
 
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
     }

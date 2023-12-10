@@ -28,6 +28,9 @@ public class ShoppingCart {
 
     @FieldLabel("Total Tax")
     private double totalTax = 0.0;
+
+    @FieldLabel("Amount Saved")
+    private double amountSaved = 0.0;
     @FieldLabel("Subtotal")
     private double subTotal = 0.0;
 
@@ -56,6 +59,8 @@ public class ShoppingCart {
     public double getTotalTax() {
         return totalTax;
     }
+
+    public double getAmountSaved() { return amountSaved; }
 
     public double getSubTotal() {
         return subTotal;
@@ -94,6 +99,8 @@ public class ShoppingCart {
     public void setTotalTax(double totalTax) {
         this.totalTax = totalTax;
     }
+
+    public void setAmountSaved(double amountSaved) { this.amountSaved = amountSaved; }
 
     public void setSubTotal(double subTotal) {
         this.subTotal = subTotal;
@@ -179,8 +186,10 @@ public class ShoppingCart {
     public double calculateSubTotal() {
         subTotal = 0.0;
         amountOff = 0.0;
+        amountSaved = 0.0;
         for (ShoppingItem item : items) {
             subTotal += item.getTotalPrice(false);
+            amountSaved += item.getAmountSaved();
         }
         for (ShoppingItem item : items) {
 
@@ -188,7 +197,9 @@ public class ShoppingCart {
                 case BuyXGetPercentOffTotal -> {
                     addAmountOff(SalesCalculator.buyXgetPercentOffTotal(subTotal, item, item.getAmountX(), item.getPercentOff()));
                 }
-                case AmountOffTotal -> addAmountOff(item.getAmountOff());
+                case AmountOffTotal ->{
+                    addAmountOff(item.getAmountOff());
+                }
                 default -> {}
             }
         }
@@ -202,9 +213,10 @@ public class ShoppingCart {
     public double calculateTotal() {
         total = 0.0;
         amountOff = 0.0;
-
+        amountSaved = 0.0;
         for (ShoppingItem item : items) {
             total += item.getTotalPrice(true);
+            amountSaved += item.getAmountSaved();
         }
         for (ShoppingItem item : items) {
             switch (item.getSaleType()) {
@@ -217,7 +229,6 @@ public class ShoppingCart {
                 default -> {}
             }
         }
-
         total -= amountOff;
         total += calculateShippingCost();
         return total;
@@ -288,8 +299,10 @@ public class ShoppingCart {
             this.subTotal = json.subTotal;
             this.total = json.total;
             this.taxRate = json.taxRate;
+            this.amountSaved = json.amountSaved;
             this.shippingCost = json.shippingCost;
             reader.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -307,12 +320,12 @@ public class ShoppingCart {
             file.delete();
         }
 
-        // Find the maximum length of item names and other fields
         int maxNameLength = items.stream().mapToInt(item -> item.getName().length()).max().orElse("Name".length());
         int maxPriceLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getPrice()).length()).max().orElse("Price".length()), "Price".length());
         int maxQuantityLength = Math.max(items.stream().mapToInt(item -> String.format("%d", item.getQuantity()).length()).max().orElse("Quantity".length()), "Quantity".length());
         int maxTaxLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getTaxCost()).length()).max().orElse("Tax Cost".length()), "Tax Cost".length());
         int maxShippingLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getShippingCost()).length()).max().orElse("Shipping Cost".length()), "Shipping Cost".length());
+        int maxTotalSavedLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getAmountSaved()).length()).max().orElse("Amount Saved".length()), "Amount Saved".length());
         int maxTotalLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getTotalPrice(false)).length()).max().orElse("Total Price".length()), "Total Price".length());;
 
         try (FileWriter writer = new FileWriter(file)) {
@@ -322,26 +335,29 @@ public class ShoppingCart {
             String quantityFormat = "%-" + maxQuantityLength + "s";
             String taxFormat = "%-" + maxTaxLength + "s";
             String shippingFormat = "%-" + maxShippingLength + "s";
+            String totalSavedFormat = "%-" + maxTotalSavedLength + "s";
             String totalFormat = "%-" + maxTotalLength + "s";
 
             if (extension.equals("txt")) {
-                writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalFormat + "\n",
-                        "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Total Price"));
-                writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalFormat + "\n",
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalSavedFormat + " " + totalFormat + "\n",
+                        "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Amount Saved", "Total Price"));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalSavedFormat + " " + totalFormat + "\n",
                         String.join("", Collections.nCopies(maxNameLength, "-")),
                         String.join("", Collections.nCopies(maxPriceLength, "-")),
                         String.join("", Collections.nCopies(maxQuantityLength, "-")),
                         String.join("", Collections.nCopies(maxTaxLength, "-")),
                         String.join("", Collections.nCopies(maxShippingLength, "-")),
+                        String.join("", Collections.nCopies(maxTotalSavedLength, "-")),
                         String.join("", Collections.nCopies(maxTotalLength, "-"))));
 
                 for (ShoppingItem item : items) {
-                    writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalFormat + "\n",
+                    writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalSavedFormat + " " + totalFormat + "\n",
                             item.getName(),
                             String.format(locale, "%.2f", item.getPrice()),
                             String.format(locale, "%d", item.getQuantity()),
                             String.format(locale, "%.2f", item.getTaxCost()),
                             String.format(locale, "%.2f", item.getShippingCost()),
+                            String.format(locale, "%.2f", item.getAmountSaved()),
                             String.format(locale, "%.2f", item.getTotalPrice(false))));
                 }
 
@@ -349,21 +365,23 @@ public class ShoppingCart {
                         "----------------------\n");
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Total Tax:", String.format("%.2f", calculateTotalTax())));
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Shipping Cost:", String.format("%.2f", calculateShippingCost())));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Amount Saved:", String.format("%.2f", amountSaved)));
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Subtotal:", String.format("%.2f", calculateSubTotal())));
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Total:", String.format("%.2f", calculateTotal())));
 
             } else if (extension.equals("csv")) {
-                writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Total Price") + "\n");
+                writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Amount Saved", "Total Price") + "\n");
 
                 for (ShoppingItem item : items) {
-                    writer.write(String.format(locale, "\"%s\",%.2f,%d,%.2f,%.2f,%.2f\n",
+                    writer.write(String.format(locale, "\"%s\",%.2f,%d,%.2f,%.2f,%.2f,%.2f\n",
                             item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
-                            item.getShippingCost(), item.getTotalPrice(false)));
+                            item.getShippingCost(), item.getAmountSaved(), item.getTotalPrice(false)));
                 }
 
                 writer.write("\n");
                 writer.write(String.format(locale, "Total Tax,%s\n", String.format(locale, "%.2f", calculateTotalTax())));
                 writer.write(String.format(locale, "Shipping Cost,%s\n", String.format(locale, "%.2f", calculateShippingCost())));
+                writer.write(String.format(locale, "Amount Saved,%s\n", String.format(locale, "%.2f", amountSaved)));
                 writer.write(String.format(locale, "Subtotal,%s\n", String.format(locale, "%.2f", calculateSubTotal())));
                 writer.write(String.format(locale, "Total,%s\n", String.format(locale, "%.2f", calculateTotal())));
             }
