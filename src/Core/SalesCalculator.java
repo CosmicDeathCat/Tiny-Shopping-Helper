@@ -1,6 +1,5 @@
 package core;
 
-import data.ShoppingCart;
 import data.ShoppingItem;
 
 /**

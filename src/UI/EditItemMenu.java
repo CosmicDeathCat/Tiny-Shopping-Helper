@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * This class contains methods for the Edit Item Menu
+ */
 public class EditItemMenu extends JDialog{
     private JPanel mainPanel;
     private JPanel editItemPanel;
@@ -34,6 +37,12 @@ public class EditItemMenu extends JDialog{
 
     private int rowIndex;
 
+    /**
+     * This is a constructor for the Edit Item Menu
+     * @param main
+     * @param item
+     * @param rowIndex
+     */
     public EditItemMenu(ShoppingMainGUI main, ShoppingItem item, int rowIndex) {
         super(main, true);
         this.mainForm = main;
@@ -123,6 +132,7 @@ public class EditItemMenu extends JDialog{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 item.setName(ItemNameInput.getText());
                 item.setQuantity(Integer.parseInt(ItemQuantityInput.getText()));
                 item.setPrice(Double.parseDouble(itemPriceInput.getText()));
@@ -165,6 +175,10 @@ public class EditItemMenu extends JDialog{
                 mainForm.getCartSubtotal();
                 dispose();
             }
+                catch (Exception exception) {
+                    JOptionPane.showMessageDialog(null, "Invalid Input. Please enter a valid input.");
+                }
+            }
         });
         add(mainPanel);
         setTitle("Edit Item");
@@ -174,6 +188,9 @@ public class EditItemMenu extends JDialog{
         setVisible(true);
     }
 
+    /**
+     * This method shows the condition inputs based on the sale type selected
+     */
     private void updateConditionVisibility() {
 
         switch (selectedSaleType) {

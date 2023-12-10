@@ -13,6 +13,9 @@ import java.lang.reflect.Field;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+/**
+ * This class contains methods for the main console UI.
+ */
 public class ShoppingMainConsole {
     public static ShoppingCart Cart = new ShoppingCart();
 
@@ -59,7 +62,6 @@ public class ShoppingMainConsole {
             }
         }
 
-        // Print separator
         System.out.println("---- Cart Totals ----");
 
         printObjectFields(cart);
@@ -426,7 +428,6 @@ public class ShoppingMainConsole {
             }
         }
         item.setTaxCost(Cart.getTaxRate());
-//        item.setTaxRate(enterItemTaxRate(scnr));
         item.setHasShipping(enterItemHasShipping(scnr));
         if (item.getHasShipping()) {
             item.setShippingCost(enterItemShippingCost(scnr));

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -112,7 +113,6 @@ public class ShoppingCart {
 
     /**
      * This method adds an item to the cart.
-     *
      * @param item
      */
     public void addItem(ShoppingItem item) {
@@ -163,6 +163,10 @@ public class ShoppingCart {
         items.clear();
     }
 
+    /**
+     * This method calculates the total tax of the cart.
+     * @return
+     */
     public double calculateTotalTax() {
         totalTax = 0.0;
         totalTax += calculateSubTotal() * taxRate;
@@ -238,6 +242,10 @@ public class ShoppingCart {
         this.shippingCost = 0.0;
     }
 
+    /**
+     * This method saves a cart to a file.
+     * @param path
+     */
     public void saveCart(String path) {
         var file = new File(path);
         if (file.exists()) {
@@ -255,6 +263,10 @@ public class ShoppingCart {
         }
     }
 
+    /**
+     * This method loads a cart from a file.
+     * @param path
+     */
     public void loadCart(String path) {
         var file = new File(path);
         if (!file.exists()) {
@@ -286,27 +298,51 @@ public class ShoppingCart {
         if (file.exists()) {
             file.delete();
         }
+
+        // Find the maximum length of item names and other fields
+        int maxNameLength = items.stream().mapToInt(item -> item.getName().length()).max().orElse("Name".length());
+        int maxPriceLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getPrice()).length()).max().orElse("Price".length()), "Price".length());
+        int maxQuantityLength = Math.max(items.stream().mapToInt(item -> String.format("%d", item.getQuantity()).length()).max().orElse("Quantity".length()), "Quantity".length());
+        int maxTaxLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getTaxCost()).length()).max().orElse("Tax Cost".length()), "Tax Cost".length());
+        int maxShippingLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getShippingCost()).length()).max().orElse("Shipping Cost".length()), "Shipping Cost".length());
+        int maxTotalLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getTotalPrice(false)).length()).max().orElse("Total Price".length()), "Total Price".length());;
+
         try (FileWriter writer = new FileWriter(file)) {
             Locale locale = Locale.US;
+            String nameFormat = "%-" + maxNameLength + "s";
+            String priceFormat = "%-" + maxPriceLength + "s";
+            String quantityFormat = "%-" + maxQuantityLength + "s";
+            String taxFormat = "%-" + maxTaxLength + "s";
+            String shippingFormat = "%-" + maxShippingLength + "s";
+            String totalFormat = "%-" + maxTotalLength + "s";
 
             if (extension.equals("txt")) {
-                writer.write(String.format(locale, "%-20s %-9s %-9s %-11s %-15s %-12s\n",
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalFormat + "\n",
                         "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Total Price"));
-                writer.write(String.format(locale, "%-20s %-9s %-9s %-11s %-15s %-12s\n",
-                        "--------------------", "---------", "---------", "-----------", "---------------", "------------"));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalFormat + "\n",
+                        String.join("", Collections.nCopies(maxNameLength, "-")),
+                        String.join("", Collections.nCopies(maxPriceLength, "-")),
+                        String.join("", Collections.nCopies(maxQuantityLength, "-")),
+                        String.join("", Collections.nCopies(maxTaxLength, "-")),
+                        String.join("", Collections.nCopies(maxShippingLength, "-")),
+                        String.join("", Collections.nCopies(maxTotalLength, "-"))));
 
                 for (ShoppingItem item : items) {
-                    writer.write(String.format(locale, "%-20s $%-8.2f %-9d $%-10.2f $%-14.2f $%-11.2f\n",
-                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
-                            item.getShippingCost(), item.getTotalPrice(false)));
+                    writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalFormat + "\n",
+                            item.getName(),
+                            String.format(locale, "%.2f", item.getPrice()),
+                            String.format(locale, "%d", item.getQuantity()),
+                            String.format(locale, "%.2f", item.getTaxCost()),
+                            String.format(locale, "%.2f", item.getShippingCost()),
+                            String.format(locale, "%.2f", item.getTotalPrice(false))));
                 }
 
                 writer.write("--------------------------------------------------------" +
                         "----------------------\n");
-                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Total Tax:", calculateTotalTax()));
-                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Shipping Cost:", calculateShippingCost()));
-                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Subtotal:", calculateSubTotal()));
-                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Total:", calculateTotal()));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Total Tax:", String.format("%.2f", calculateTotalTax())));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Shipping Cost:", String.format("%.2f", calculateShippingCost())));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Subtotal:", String.format("%.2f", calculateSubTotal())));
+                writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Total:", String.format("%.2f", calculateTotal())));
 
             } else if (extension.equals("csv")) {
                 writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Total Price") + "\n");
@@ -323,14 +359,8 @@ public class ShoppingCart {
                 writer.write(String.format(locale, "Subtotal,%s\n", String.format(locale, "%.2f", calculateSubTotal())));
                 writer.write(String.format(locale, "Total,%s\n", String.format(locale, "%.2f", calculateTotal())));
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-
-
-
 }

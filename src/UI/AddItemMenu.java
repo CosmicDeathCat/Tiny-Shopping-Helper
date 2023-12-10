@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * This class contains methods for the add item menu
+ */
 public class AddItemMenu extends JDialog {
     private JPanel mainPanel;
     private JPanel addItemTitlePanel;
@@ -105,6 +108,7 @@ public class AddItemMenu extends JDialog {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 String itemName = itemNameInput.getText();
 
                 double itemPrice = Double.parseDouble(itemPriceInput.getText());
@@ -181,6 +185,10 @@ public class AddItemMenu extends JDialog {
                 mainForm.getCartSubtotal();
 
                 dispose();
+            }
+                catch (NumberFormatException exception) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number.");
+                }
             }
         });
 

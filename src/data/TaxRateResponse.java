@@ -1,5 +1,7 @@
 package data;
-
+/**
+ * This class contains the response from the tax rate API.
+ */
 public class TaxRateResponse {
     private String zip_code;
     private double total_rate;

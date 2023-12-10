@@ -16,6 +16,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Locale;
 
+/**
+ * This class contains methods for the main GUI
+ */
 public class ShoppingMainGUI extends JFrame{
 
     public JTextField taxRateInput;
@@ -148,7 +151,6 @@ public class ShoppingMainGUI extends JFrame{
                                         item.setShippingCost(num);
                                         model.setValueAt(String.format("%.2f", num), row, column);
                                     } catch (NumberFormatException ex) {
-                                        // Handle invalid number format, maybe reset to "N/A" or show an error message
                                         JOptionPane.showMessageDialog(null, "Invalid shipping cost format", "Error", JOptionPane.ERROR_MESSAGE);
                                         model.setValueAt(0.0, row, 4);
                                     }
@@ -187,7 +189,12 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 AddItemMenu addItemMenu = new AddItemMenu(ShoppingMainGUI.this, taxRate);
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error adding item", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         calculateTotalButton.addActionListener(new ActionListener() {
@@ -197,11 +204,16 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 updateTaxRate(taxRate);
                 getCartTotalShipping();
                 getCartTotalTax();
                 getCartSubtotal();
                 getCartGrandTotal();
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error calculating total", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         editButton.addActionListener(new ActionListener() {
@@ -211,9 +223,14 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 int index = shoppingCartTable.getSelectedRow();
                 ShoppingItem item = shoppingCart.getItems().get(index);
                 EditItemMenu editItemMenu = new EditItemMenu(ShoppingMainGUI.this, item, index);
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error editing item. Please select an item to edit.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         deleteButton.addActionListener(new ActionListener() {
@@ -223,12 +240,17 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 int index = shoppingCartTable.getSelectedRow();
                 deleteItem(index);
                 updateTaxRate(taxRate);
                 getCartTotalShipping();
                 getCartTotalTax();
                 getCartSubtotal();
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error deleting item", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         saveProgressButton.addActionListener(new ActionListener() {
@@ -239,6 +261,7 @@ public class ShoppingMainGUI extends JFrame{
           */
          @Override
          public void actionPerformed(ActionEvent e) {
+             try{
              JFileChooser fileChooser = new JFileChooser();
              fileChooser.setDialogTitle("Save Progress");
              fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -258,6 +281,10 @@ public class ShoppingMainGUI extends JFrame{
                  shoppingCart.saveCart(path);
              }
          }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error saving cart", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
      });
         loadButton.addActionListener(new ActionListener() {
          /**
@@ -267,6 +294,7 @@ public class ShoppingMainGUI extends JFrame{
           */
          @Override
          public void actionPerformed(ActionEvent e) {
+             try{
              JFileChooser fileChooser = new JFileChooser();
              fileChooser.setDialogTitle("Load Progress");
              fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -284,6 +312,10 @@ public class ShoppingMainGUI extends JFrame{
              getCartSubtotal();
              getCartGrandTotal();
          }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error loading cart", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
      });
 
         useFlatShippingCheckBox.addActionListener(new ActionListener() {
@@ -339,9 +371,14 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 ZipCodeInputGUI zipCodeInputGUI = new ZipCodeInputGUI(ShoppingMainGUI.this);
                 zipCodeInputGUI.setModal(true);
                 zipCodeInputGUI.setVisible(true);
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error loading tax rate", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -378,6 +415,7 @@ public class ShoppingMainGUI extends JFrame{
          */
         @Override
         public void actionPerformed(ActionEvent e) {
+            try{
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Save Receipt");
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -388,12 +426,21 @@ public class ShoppingMainGUI extends JFrame{
             int result = fileChooser.showSaveDialog(ShoppingMainGUI.this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 String path = fileChooser.getSelectedFile().getAbsolutePath();
-                path = path.substring(0, path.lastIndexOf('.'));
+                if(path.lastIndexOf('.') != -1){
+                    path = path.substring(0, path.lastIndexOf('.'));
+                }
+                else if(path.lastIndexOf('.') != -1 && !path.substring(path.lastIndexOf('.')).equals(".txt") && !path.substring(path.lastIndexOf('.')).equals(".csv")){
+                    path = path.substring(0, path.lastIndexOf('.'));
+                }
                 if (fileChooser.getFileFilter().getDescription().equals("txt")) {
                     shoppingCart.saveReceipt(path + ".txt", "txt");
                 } else {
                     shoppingCart.saveReceipt(path + ".csv", "csv");
                 }
+            }
+        }
+            catch (Exception ex){
+                JOptionPane.showMessageDialog(null, "Error saving receipt", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     });
@@ -433,14 +480,22 @@ public class ShoppingMainGUI extends JFrame{
             }
         });
 
-        // Add a WindowListener to open ZipCodeInputGUI after ShoppingMainGUI is visible
         this.addWindowListener(new WindowAdapter() {
+            /**
+             * This method is called when the window is opened
+             * @param e
+             */
             @Override
             public void windowOpened(WindowEvent e) {
+                try{
                 super.windowOpened(e);
                 ZipCodeInputGUI zipCodeInputGUI = new ZipCodeInputGUI(ShoppingMainGUI.this);
                 zipCodeInputGUI.setModal(true);
                 zipCodeInputGUI.setVisible(true);
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error loading tax rate", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -458,7 +513,6 @@ public class ShoppingMainGUI extends JFrame{
         shoppingCart.addItem(item);
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
 
-        // Format the numeric values to have two decimal places
         Object[] rowData = {
                 item.getName(),
                 String.format("%.2f", item.getPrice()),
@@ -481,15 +535,24 @@ public class ShoppingMainGUI extends JFrame{
         updateShoppingCartTableItems();
     }
 
+    /**
+     * this gets the shipping of the cart
+     */
     public void getCartTotalShipping() {
         double totalShipping = shoppingCart.calculateShippingCost();
         cartTotalShippingLabel.setText(String.format("Total Shipping: %.2f", totalShipping));
     }
+    /**
+     * this gets the tax of the cart
+     */
     public void getCartTotalTax() {
         double totalTax = shoppingCart.calculateTotalTax();
         cartTotalTaxLabel.setText(String.format("Total Tax: %.2f", totalTax));
     }
 
+    /**
+     * this gets the subtotal of the cart
+     */
     public void getCartSubtotal() {
         double subtotal = shoppingCart.calculateSubTotal();
         cartSubtotalLabel.setText(String.format("Subtotal: %.2f", subtotal));
@@ -507,7 +570,6 @@ public class ShoppingMainGUI extends JFrame{
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
         tableModel.setRowCount(0);
         for (ShoppingItem item : shoppingCart.getItems()) {
-            // Format the numeric values to have two decimal places
             Object[] rowData = {
                     item.getName(),
                     String.format("%.2f", item.getPrice()),
@@ -520,29 +582,33 @@ public class ShoppingMainGUI extends JFrame{
         }
     }
 
+    /**
+     * this is a method to update the cart table
+     * @param updatedItem
+     * @param rowIndex
+     */
     public void updateShoppingCartTableItem(ShoppingItem updatedItem, int rowIndex) {
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
 
-        // Update the table model with the new details of the edited item
         tableModel.setValueAt(updatedItem.getName(), rowIndex, 0);
         tableModel.setValueAt(String.format("%.2f", updatedItem.getPrice()), rowIndex, 1);
         tableModel.setValueAt(String.valueOf(updatedItem.getQuantity()), rowIndex, 2);
 
-        // Calculate the tax amount and convert to string
         double taxCost = updatedItem.getTaxCost();
         tableModel.setValueAt(String.format("%.2f", taxCost), rowIndex, 3);
 
-        // Convert shipping cost to string
         tableModel.setValueAt(String.format("%.2f", updatedItem.getShippingCost()), rowIndex, 4);
 
-        // Calculate the total and convert to string
         double total = updatedItem.getTotalPrice(false);
         tableModel.setValueAt(String.format("%.2f", total), rowIndex, 5);
 
-        // Update the UI
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
     }
 
+    /**
+     * this is a method to update the tax rate
+     * @param taxRate
+     */
     public void updateTaxRate(double taxRate) {
         this.taxRate = taxRate;
         shoppingCart.setTaxRate(taxRate);
