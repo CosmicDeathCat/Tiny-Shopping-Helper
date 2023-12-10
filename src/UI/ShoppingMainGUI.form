@@ -146,6 +146,12 @@
                   <text value="Load"/>
                 </properties>
               </component>
+              <component id="4787e" class="javax.swing.JButton" binding="clearAllButton">
+                <constraints/>
+                <properties>
+                  <text value="Clear"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <scrollpane id="b3124" binding="shoppingCartScroll">

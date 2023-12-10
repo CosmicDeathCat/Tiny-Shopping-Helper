@@ -50,6 +50,7 @@ public class ShoppingMainGUI extends JFrame{
     private JTextField useFlatShippingInput;
     private JButton zipCodeEntryButton;
     private JLabel amountSavedLabel;
+    private JButton clearAllButton;
 
 
     /**
@@ -484,6 +485,32 @@ public class ShoppingMainGUI extends JFrame{
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
                     taxRateInput.setText(String.valueOf(tax));
+                }
+            }
+        });
+
+        clearAllButton.addActionListener(new ActionListener() {
+            /**
+             * this is a method to clear the cart
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the cart?", "Clear Cart", JOptionPane.YES_NO_OPTION);
+                    if(result == JOptionPane.YES_OPTION) {
+                        shoppingCart.clearCart();
+                        updateShoppingCartTableItems();
+                        getCartTotalShipping();
+                        getCartTotalTax();
+                        getCartSubtotal();
+                        getCartGrandTotal();
+                        getAmountSaved();
+                    }
+
+            }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(null, "Error clearing cart", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
