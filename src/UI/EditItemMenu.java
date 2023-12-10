@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class EditItemMenu extends JFrame{
+public class EditItemMenu extends JDialog{
     private JPanel mainPanel;
     private JPanel editItemPanel;
     private JPanel editTopBarPanel;
@@ -35,7 +35,7 @@ public class EditItemMenu extends JFrame{
     private int rowIndex;
 
     public EditItemMenu(ShoppingMainGUI main, ShoppingItem item, int rowIndex) {
-
+        super(main, true);
         this.mainForm = main;
         this.rowIndex = rowIndex;
         this.ItemNameInput.setText(item.getName());
@@ -160,6 +160,7 @@ public class EditItemMenu extends JFrame{
                 item.setHasShipping(itemShippingDropDown.getSelectedIndex() == 1);
                 item.setShippingCost(Double.parseDouble(itemShippingInput.getText()));
                 mainForm.updateShoppingCartTableItem(item, rowIndex);
+                mainForm.getCartTotalShipping();
                 mainForm.getCartTotalTax();
                 mainForm.getCartSubtotal();
                 dispose();

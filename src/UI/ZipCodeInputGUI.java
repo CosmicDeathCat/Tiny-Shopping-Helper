@@ -18,27 +18,18 @@ import java.util.regex.Pattern;
 /**
  * This class contains methods for the ZIP Code Input GUI
  */
-public class ZipCodeInputGUI extends JFrame {
+public class ZipCodeInputGUI extends JDialog {
     private JTextField userInputZipCode;
     private JButton enterZipCodeButton;
     private JLabel inputQuestionLabel;
+    private JPanel mainPanel;
+    private JPanel mainFormPanel;
 
     /**
      * This is a constructor for the ZIP Code Input GUI
      */
-    public ZipCodeInputGUI() {
-        setTitle("ZIP Code Input");
-        setSize(300, 150);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-
-        panel.add(inputQuestionLabel, BorderLayout.NORTH);
-        panel.add(userInputZipCode, BorderLayout.CENTER);
-        panel.add(enterZipCodeButton, BorderLayout.SOUTH);
-
+    public ZipCodeInputGUI(ShoppingMainGUI mainForm) {
+        super(mainForm, true);
         enterZipCodeButton.addActionListener(new ActionListener() {
             /**
              * This method is called when the user clicks the enter zip code button
@@ -50,18 +41,18 @@ public class ZipCodeInputGUI extends JFrame {
 
                 if (isValidUSZipCode(zipCode)) {
                     double taxRate = fetchTaxRate(zipCode);
-
-                    ShoppingMainGUI mainForm = new ShoppingMainGUI(taxRate);
-                    mainForm.setVisible(true);
-
+                    mainForm.updateTaxRate(taxRate);
+                    mainForm.taxRateInput.setText(String.valueOf(taxRate));
                     dispose();
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid US ZIP Code. Please enter a valid ZIP Code.");
                 }
             }
         });
-
-        add(panel);
+        add(mainPanel);
+        setTitle("ZIP Code Input");
+        setSize(200, 125);
+        setLocationRelativeTo(null);
     }
 
     /**
@@ -83,16 +74,5 @@ public class ZipCodeInputGUI extends JFrame {
         TaxRateClient taxRateClient = new TaxRateClient();
         TaxRateResponse taxRateResponse = taxRateClient.getTaxRateFromZipCityState(zipCode, null, null);
         return taxRateResponse.getTotalRate();
-    }
-
-    /**
-     * This is the main method
-     * @param args
-     */
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ZipCodeInputGUI zipCodeInputGUI = new ZipCodeInputGUI();
-            zipCodeInputGUI.setVisible(true);
-        });
     }
 }

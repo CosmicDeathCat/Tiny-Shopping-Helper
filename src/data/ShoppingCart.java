@@ -22,6 +22,7 @@ public class ShoppingCart {
     @FieldLabel("Shipping Cost")
     private double shippingCost = 0.0;
 
+    @FieldLabel("Flat Shipping")
     private boolean flatShipping = false;
 
     @FieldLabel("Total Tax")
@@ -175,7 +176,7 @@ public class ShoppingCart {
         subTotal = 0.0;
         amountOff = 0.0;
         for (ShoppingItem item : items) {
-            subTotal += item.getTotalPrice(false, false);
+            subTotal += item.getTotalPrice(false);
         }
         for (ShoppingItem item : items) {
 
@@ -196,7 +197,7 @@ public class ShoppingCart {
         total = 0.0;
         amountOff = 0.0;
         for (ShoppingItem item : items) {
-            total += item.getTotalPrice(true, true);
+            total += item.getTotalPrice(true);
         }
         for (ShoppingItem item : items) {
             switch (item.getSaleType()) {
@@ -206,6 +207,7 @@ public class ShoppingCart {
             }
         }
         total -= amountOff;
+        total += calculateShippingCost();
         return total;
     }
 
@@ -217,7 +219,11 @@ public class ShoppingCart {
             return shippingCost;
         }
         shippingCost = 0.0;
-        shippingCost = items.stream().mapToDouble(ShoppingItem::getShippingCost).sum();
+        for (ShoppingItem item : items) {
+            if(item.getHasShipping()){
+                shippingCost += item.getShippingCost();
+            }
+        }
         return shippingCost;
     }
 
@@ -285,37 +291,36 @@ public class ShoppingCart {
 
             if (extension.equals("txt")) {
                 writer.write(String.format(locale, "%-20s %-9s %-9s %-11s %-15s %-12s\n",
-                        "Name", "Price", "Quantity", "Tax Rate", "Shipping Cost", "Total Price"));
+                        "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Total Price"));
                 writer.write(String.format(locale, "%-20s %-9s %-9s %-11s %-15s %-12s\n",
                         "--------------------", "---------", "---------", "-----------", "---------------", "------------"));
 
                 for (ShoppingItem item : items) {
                     writer.write(String.format(locale, "%-20s $%-8.2f %-9d $%-10.2f $%-14.2f $%-11.2f\n",
                             item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
-                            item.getShippingCost(), item.getTotalPrice(false, true)));
+                            item.getShippingCost(), item.getTotalPrice(false)));
                 }
 
                 writer.write("--------------------------------------------------------" +
                         "----------------------\n");
-
-                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Subtotal:", calculateSubTotal()));
                 writer.write(String.format(locale, "%-20s $%-8.2f\n", "Total Tax:", calculateTotalTax()));
                 writer.write(String.format(locale, "%-20s $%-8.2f\n", "Shipping Cost:", calculateShippingCost()));
+                writer.write(String.format(locale, "%-20s $%-8.2f\n", "Subtotal:", calculateSubTotal()));
                 writer.write(String.format(locale, "%-20s $%-8.2f\n", "Total:", calculateTotal()));
 
             } else if (extension.equals("csv")) {
-                writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Rate", "Shipping Cost", "Total Price") + "\n");
+                writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Total Price") + "\n");
 
                 for (ShoppingItem item : items) {
                     writer.write(String.format(locale, "\"%s\",%.2f,%d,%.2f,%.2f,%.2f\n",
                             item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
-                            item.getShippingCost(), item.getTotalPrice(false, true)));
+                            item.getShippingCost(), item.getTotalPrice(false)));
                 }
 
                 writer.write("\n");
-                writer.write(String.format(locale, "Subtotal,%s\n", String.format(locale, "%.2f", calculateSubTotal())));
                 writer.write(String.format(locale, "Total Tax,%s\n", String.format(locale, "%.2f", calculateTotalTax())));
                 writer.write(String.format(locale, "Shipping Cost,%s\n", String.format(locale, "%.2f", calculateShippingCost())));
+                writer.write(String.format(locale, "Subtotal,%s\n", String.format(locale, "%.2f", calculateSubTotal())));
                 writer.write(String.format(locale, "Total,%s\n", String.format(locale, "%.2f", calculateTotal())));
             }
 

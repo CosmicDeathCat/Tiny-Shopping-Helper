@@ -7,13 +7,19 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Locale;
 
 public class ShoppingMainGUI extends JFrame{
+
+    public JTextField taxRateInput;
+    public double taxRate;
 
     public static ShoppingCart shoppingCart = new ShoppingCart();
     public JTable shoppingCartTable;
@@ -33,24 +39,31 @@ public class ShoppingMainGUI extends JFrame{
     private JButton editButton;
     private JLabel cartTaxRateLabel;
     private JLabel cartSubtotalLabel;
-    private JTextField taxRateInput;
     private JLabel cartTotalTaxLabel;
+    private JLabel cartTotalShippingLabel;
+    private JPanel secondButtonBar;
+    private JCheckBox useFlatShippingCheckBox;
+    private JLabel useFlatShippingLabel;
+    private JTextField useFlatShippingInput;
+    private JButton zipCodeEntryButton;
 
-    public double taxRate;
 
 
     /**
      * this is a constructor for the main GUI
-     * @param tax
      */
-    public ShoppingMainGUI(Double tax) {
+    public ShoppingMainGUI() {
         setTitle("Tiny Shopping Helper");
-        this.taxRate = tax;
-        shoppingCart.setTaxRate(tax);
-        cartTaxRateLabel.setText("Tax Rate: " + tax * 100 + "%");
-        taxRateInput.setText(String.valueOf(tax));
+        updateTaxRate(0.0);
+        getCartTotalShipping();
         getCartTotalTax();
         getCartSubtotal();
+        getCartGrandTotal();
+
+        useFlatShippingInput.setVisible(false);
+        useFlatShippingLabel.setVisible(false);
+
+        useFlatShippingInput.setPreferredSize(new Dimension(100, 25));
 
         JPanel contentPane = (JPanel) getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -70,10 +83,20 @@ public class ShoppingMainGUI extends JFrame{
          */
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column < 5;
+                    return column != 3 && column != 5;
         }};
 
         shoppingCartTable.setModel(tableModel);
+
+        shoppingCartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        for (int columnIndex = 0; columnIndex < shoppingCartTable.getColumnCount(); columnIndex++) {
+            shoppingCartTable.getColumnModel().getColumn(columnIndex).setCellRenderer(centerRenderer);
+        }
+
 
         tableModel.addTableModelListener(new TableModelListener() {
             private boolean isUpdating = false;
@@ -113,16 +136,30 @@ public class ShoppingMainGUI extends JFrame{
                                 model.setValueAt(String.format("%.2f", num), row, column);
                                 break;
                             case 4:
-                                item.setShippingCost(Double.parseDouble((String) model.getValueAt(row, column)));
-                                num = Double.parseDouble((String) model.getValueAt(row, column));
-                                model.setValueAt(String.format("%.2f", num), row, column);
+                                String shippingValue = ((String) model.getValueAt(row, column)).trim().toLowerCase();
+                                if(shippingValue.equals("n/a") || shippingValue.isEmpty() || shippingValue.equals("0")) {
+                                    item.setHasShipping(false);
+                                    item.setShippingCost(0);
+                                    model.setValueAt(0.0, row, 4);
+                                } else {
+                                    try {
+                                        num = Double.parseDouble(shippingValue);
+                                        item.setHasShipping(true);
+                                        item.setShippingCost(num);
+                                        model.setValueAt(String.format("%.2f", num), row, column);
+                                    } catch (NumberFormatException ex) {
+                                        // Handle invalid number format, maybe reset to "N/A" or show an error message
+                                        JOptionPane.showMessageDialog(null, "Invalid shipping cost format", "Error", JOptionPane.ERROR_MESSAGE);
+                                        model.setValueAt(0.0, row, 4);
+                                    }
+                                }
+
                                 break;
                         }
 
                         SwingUtilities.invokeLater(() -> {
-                            String formattedTotal = String.format(Locale.US, "%.2f", item.getTotalPrice(false, true));
+                            String formattedTotal = String.format(Locale.US, "%.2f", item.getTotalPrice(false));
                             model.setValueAt(formattedTotal, row, 5);
-                            getCartTotal();
                         });
 
                     } catch (NumberFormatException ex) {
@@ -133,6 +170,8 @@ public class ShoppingMainGUI extends JFrame{
                         if(column == 4) model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
                     } finally {
                         isUpdating = false;
+                        updateTaxRate(taxRate);
+                        getCartTotalShipping();
                         getCartTotalTax();
                         getCartSubtotal();
                     }
@@ -158,9 +197,11 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                updateTaxRate(taxRate);
+                getCartTotalShipping();
                 getCartTotalTax();
                 getCartSubtotal();
-                getCartTotal();
+                getCartGrandTotal();
             }
         });
         editButton.addActionListener(new ActionListener() {
@@ -184,6 +225,8 @@ public class ShoppingMainGUI extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 int index = shoppingCartTable.getSelectedRow();
                 deleteItem(index);
+                updateTaxRate(taxRate);
+                getCartTotalShipping();
                 getCartTotalTax();
                 getCartSubtotal();
             }
@@ -235,10 +278,98 @@ public class ShoppingMainGUI extends JFrame{
                  shoppingCart.loadCart(path);
                  updateShoppingCartTableItems();
              }
+             updateTaxRate(taxRate);
+             getCartTotalShipping();
              getCartTotalTax();
              getCartSubtotal();
+             getCartGrandTotal();
          }
      });
+
+        useFlatShippingCheckBox.addActionListener(new ActionListener() {
+            /**
+             * this is a method to change the tax rate
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if(useFlatShippingCheckBox.isSelected()){
+                        useFlatShippingInput.setVisible(true);
+                        useFlatShippingLabel.setVisible(true);
+                        shoppingCart.setFlatShipping(true);
+                    }
+                    else{
+                        useFlatShippingInput.setVisible(false);
+                        useFlatShippingLabel.setVisible(false);
+                        shoppingCart.setFlatShipping(false);
+                    }
+                    if(!useFlatShippingInput.getText().isEmpty()){
+                        double shipping = Double.parseDouble(useFlatShippingInput.getText());
+                        if (shipping < 0) {
+                            JOptionPane.showMessageDialog(null, "Shipping cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                            useFlatShippingInput.setText(String.valueOf(shoppingCart.getShippingCost()));
+                        } else {
+                            shoppingCart.setShippingCost(shipping);
+                            useFlatShippingInput.setText(String.format("%.2f",shipping));
+                        }
+                    }
+                    else {
+                        useFlatShippingInput.setText(String.valueOf(shoppingCart.getShippingCost()));
+                    }
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
+                    useFlatShippingInput.setText(String.format("%.2f", shoppingCart.getShippingCost()));
+                }
+                finally {
+                    updateTaxRate(taxRate);
+                    getCartTotalShipping();
+                    getCartTotalTax();
+                    getCartSubtotal();
+                    getCartGrandTotal();
+                }
+            }
+        });
+
+        zipCodeEntryButton.addActionListener(new ActionListener() {
+            /**
+             * This method is called when the user clicks the enter zip code button
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ZipCodeInputGUI zipCodeInputGUI = new ZipCodeInputGUI(ShoppingMainGUI.this);
+                zipCodeInputGUI.setModal(true);
+                zipCodeInputGUI.setVisible(true);
+            }
+        });
+
+        useFlatShippingInput.addActionListener(new ActionListener() {
+            /**
+             * this is a method to change the tax rate
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    double shipping = Double.parseDouble(useFlatShippingInput.getText());
+                    if (shipping < 0) {
+                        JOptionPane.showMessageDialog(null, "Shipping cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                        useFlatShippingInput.setText(String.valueOf(shoppingCart.getShippingCost()));
+                    } else {
+                        shoppingCart.setShippingCost(shipping);
+                        useFlatShippingInput.setText(String.valueOf(shipping));
+                        getCartTotalShipping();
+                        getCartGrandTotal();
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
+                    useFlatShippingInput.setText(String.format("%.2f", shoppingCart.getShippingCost()));
+                }
+            }
+        });
+
         saveReceiptButton.addActionListener(new ActionListener() {
         /**
          * this method will save the cart to either a txt or csv file will prompt the user with a file dialog choosing where to save the file
@@ -274,8 +405,9 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                double tax = 0.0;
                 try {
-                    double tax = Double.parseDouble(taxRateInput.getText());
+                    tax = Double.parseDouble(taxRateInput.getText());
                     if (tax < 0) {
                         JOptionPane.showMessageDialog(null, "Tax rate cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
                         taxRateInput.setText(String.valueOf(taxRate));
@@ -290,6 +422,7 @@ public class ShoppingMainGUI extends JFrame{
                         cartTaxRateLabel.setText("Tax Rate: " + tax * 100 + "%");
 
                         updateShoppingCartTableItems();
+                        getCartTotalShipping();
                         getCartTotalTax();
                         getCartSubtotal();
                     }
@@ -297,6 +430,17 @@ public class ShoppingMainGUI extends JFrame{
                     JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
                     taxRateInput.setText(String.valueOf(tax));
                 }
+            }
+        });
+
+        // Add a WindowListener to open ZipCodeInputGUI after ShoppingMainGUI is visible
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
+                ZipCodeInputGUI zipCodeInputGUI = new ZipCodeInputGUI(ShoppingMainGUI.this);
+                zipCodeInputGUI.setModal(true);
+                zipCodeInputGUI.setVisible(true);
             }
         });
 
@@ -321,7 +465,7 @@ public class ShoppingMainGUI extends JFrame{
                 item.getQuantity(),
                 String.format("%.2f", item.getTaxCost()),
                 String.format("%.2f", item.getShippingCost()),
-                String.format("%.2f", item.getTotalPrice(false, true))
+                String.format("%.2f", item.getTotalPrice(false))
         };
         tableModel.addRow(rowData);
     }
@@ -337,6 +481,10 @@ public class ShoppingMainGUI extends JFrame{
         updateShoppingCartTableItems();
     }
 
+    public void getCartTotalShipping() {
+        double totalShipping = shoppingCart.calculateShippingCost();
+        cartTotalShippingLabel.setText(String.format("Total Shipping: %.2f", totalShipping));
+    }
     public void getCartTotalTax() {
         double totalTax = shoppingCart.calculateTotalTax();
         cartTotalTaxLabel.setText(String.format("Total Tax: %.2f", totalTax));
@@ -350,10 +498,9 @@ public class ShoppingMainGUI extends JFrame{
     /**
      * this gets the total of the cart
      */
-    public void getCartTotal() {
+    public void getCartGrandTotal() {
         double grandTotal = shoppingCart.calculateTotal();
         cartGrandTotalLabel.setText(String.format("Grand Total: %.2f", grandTotal));
-
     }
 
     public void updateShoppingCartTableItems() {
@@ -367,7 +514,7 @@ public class ShoppingMainGUI extends JFrame{
                     item.getQuantity(),
                     String.format("%.2f", item.getTaxCost()),
                     String.format("%.2f", item.getShippingCost()),
-                    String.format("%.2f", item.getTotalPrice(false, true))
+                    String.format("%.2f", item.getTotalPrice(false))
             };
             tableModel.addRow(rowData);
         }
@@ -389,11 +536,22 @@ public class ShoppingMainGUI extends JFrame{
         tableModel.setValueAt(String.format("%.2f", updatedItem.getShippingCost()), rowIndex, 4);
 
         // Calculate the total and convert to string
-        double total = updatedItem.getTotalPrice(false, false);
+        double total = updatedItem.getTotalPrice(false);
         tableModel.setValueAt(String.format("%.2f", total), rowIndex, 5);
 
         // Update the UI
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
+    }
+
+    public void updateTaxRate(double taxRate) {
+        this.taxRate = taxRate;
+        shoppingCart.setTaxRate(taxRate);
+
+        for (ShoppingItem item : shoppingCart.getItems()) {
+            item.setTaxRate(taxRate);
+        }
+
+        cartTaxRateLabel.setText("Tax Rate: " + taxRate * 100 + "%");
     }
 
     /**
@@ -402,7 +560,7 @@ public class ShoppingMainGUI extends JFrame{
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            ShoppingMainGUI mainForm = new ShoppingMainGUI(0.0);
+            ShoppingMainGUI mainForm = new ShoppingMainGUI();
             mainForm.setVisible(true);
         });
     }

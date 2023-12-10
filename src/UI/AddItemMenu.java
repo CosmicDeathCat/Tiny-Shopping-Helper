@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class AddItemMenu extends JFrame {
+public class AddItemMenu extends JDialog {
     private JPanel mainPanel;
     private JPanel addItemTitlePanel;
     private JLabel addItemMenuTitle;
@@ -41,6 +41,7 @@ public class AddItemMenu extends JFrame {
      * @param mainForm
      */
     public AddItemMenu(ShoppingMainGUI mainForm, double taxRate) {
+        super(mainForm, true);
         this.mainForm = mainForm;
         this.taxRate = taxRate;
 
@@ -175,6 +176,7 @@ public class AddItemMenu extends JFrame {
 
                 item.setTaxCost(item.getTaxCost());
                 mainForm.addItemToCart(item);
+                mainForm.getCartTotalShipping();
                 mainForm.getCartTotalTax();
                 mainForm.getCartSubtotal();
 
