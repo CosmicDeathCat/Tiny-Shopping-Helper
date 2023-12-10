@@ -136,7 +136,13 @@ public class EditItemMenu extends JDialog{
                 try{
                 item.setName(ItemNameInput.getText());
                 item.setQuantity(Integer.parseInt(ItemQuantityInput.getText()));
+                if (item.getQuantity() < 1) {
+                    throw new NumberFormatException();
+                }
                 item.setPrice(Double.parseDouble(itemPriceInput.getText()));
+                if (item.getPrice() < 0) {
+                    throw new NumberFormatException();
+                }
                 item.setSaleType(selectedSaleType);
 
                 switch (item.getSaleType()){
@@ -172,6 +178,9 @@ public class EditItemMenu extends JDialog{
                 }
                 item.setHasShipping(itemShippingDropDown.getSelectedIndex() == 1);
                 item.setShippingCost(Double.parseDouble(itemShippingInput.getText()));
+                if (item.getShippingCost() < 0) {
+                    throw new NumberFormatException();
+                }
                 mainForm.updateShoppingCartTableItem(item, rowIndex);
                 mainForm.getCartTotalShipping();
                 mainForm.getCartTotalTax();
@@ -179,8 +188,8 @@ public class EditItemMenu extends JDialog{
                 mainForm.getAmountSaved();
                 dispose();
             }
-                catch (Exception exception) {
-                    JOptionPane.showMessageDialog(null, "Invalid Input. Please enter a valid input.");
+                catch (NumberFormatException exception) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid positive number.");
                 }
             }
         });

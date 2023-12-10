@@ -113,10 +113,19 @@ public class AddItemMenu extends JDialog {
                 String itemName = itemNameInput.getText();
 
                 double itemPrice = Double.parseDouble(itemPriceInput.getText());
+                if (itemPrice < 0) {
+                    throw new NumberFormatException();
+                }
                 int itemQuantity = Integer.parseInt(itemQuantityInput.getText());
+                if (itemQuantity < 0) {
+                    throw new NumberFormatException();
+                }
                 double itemShippingCost = 0.0;
                 if(itemShippingDropDown.getSelectedItem().equals("Yes")) {
                     itemShippingCost = Double.parseDouble(itemShippingInput.getText());
+                    if (itemShippingCost < 0) {
+                        throw new NumberFormatException();
+                    }
                 }
 
                 ShoppingItem item = new ShoppingItem();
@@ -191,7 +200,7 @@ public class AddItemMenu extends JDialog {
                 dispose();
             }
                 catch (NumberFormatException exception) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number.");
+                    JOptionPane.showMessageDialog(null, "Please enter a valid positive number.");
                 }
             }
         });

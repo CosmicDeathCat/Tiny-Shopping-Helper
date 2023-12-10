@@ -123,47 +123,89 @@ public class ShoppingMainGUI extends JFrame{
                         double num = 0;
                         switch (column) {
                             case 0:
-                                item.setName((String) model.getValueAt(row, column));
-                                break;
+                                try {
+                                    item.setName((String) model.getValueAt(row, column));
+                                } catch (IllegalArgumentException ex) {
+                                    JOptionPane.showMessageDialog(null, "Invalid name", "Error", JOptionPane.ERROR_MESSAGE);
+                                    model.setValueAt(item.getName(), row, column);
+                                }
+                                    break;
                             case 1:
-                                item.setPrice(Double.parseDouble((String) model.getValueAt(row, column)));
-                                 num = Double.parseDouble((String) model.getValueAt(row, column));
-                                model.setValueAt(String.format("%.2f", num), row, column);
-                                model.setValueAt(String.format("%.2f", item.getTaxCost()), row, 3);
+                                try {
+                                    double price = Double.parseDouble((String) model.getValueAt(row, column));
+                                    if (price < 0) {
+                                        JOptionPane.showMessageDialog(null, "Price cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                                        model.setValueAt(String.format("%.2f", item.getPrice()), row, column);
+                                    } else {
+                                        item.setPrice(price);
+                                        model.setValueAt(String.format("%.2f", item.getPrice()), row, column);
+                                    }
+                                    model.setValueAt(String.format("%.2f", item.getTaxCost()), row, 3);
+                                } catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(null, "Invalid price format", "Error", JOptionPane.ERROR_MESSAGE);
+                                    model.setValueAt(String.format("%.2f", item.getPrice()), row, column);
+                                }
                                 break;
                             case 2:
-                                item.setQuantity(Integer.parseInt((String) model.getValueAt(row, column)));
-                                model.setValueAt(String.format("%.2f", item.getTaxCost()), row, 3);
-                                break;
-                            case 3:
-                                item.setTaxCost(Double.parseDouble((String) model.getValueAt(row, column)));
-                                num = Double.parseDouble((String) model.getValueAt(row, column));
-                                model.setValueAt(String.format("%.2f", num), row, column);
-                                break;
-                            case 4:
-                                String shippingValue = ((String) model.getValueAt(row, column)).trim().toLowerCase();
-                                if(shippingValue.equals("n/a") || shippingValue.isEmpty() || shippingValue.equals("0")) {
-                                    item.setHasShipping(false);
-                                    item.setShippingCost(0);
-                                    model.setValueAt(0.0, row, 4);
-                                } else {
-                                    try {
-                                        num = Double.parseDouble(shippingValue);
-                                        item.setHasShipping(true);
-                                        item.setShippingCost(num);
-                                        model.setValueAt(String.format("%.2f", num), row, column);
-                                    } catch (NumberFormatException ex) {
-                                        JOptionPane.showMessageDialog(null, "Invalid shipping cost format", "Error", JOptionPane.ERROR_MESSAGE);
-                                        model.setValueAt(0.0, row, 4);
+                                try {
+                                    int quantity = Integer.parseInt((String) model.getValueAt(row, column));
+                                    if (quantity < 0) {
+                                        JOptionPane.showMessageDialog(null, "Quantity cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                                        model.setValueAt(item.getQuantity(), row, column);
+                                    } else {
+                                        item.setQuantity(quantity);
+                                        model.setValueAt(item.getQuantity(), row, column);
                                     }
                                 }
-
+                                catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(null, "Invalid quantity format", "Error", JOptionPane.ERROR_MESSAGE);
+                                    model.setValueAt(item.getQuantity(), row, column);
+                                }
+                                break;
+                            case 3:
+                                try {
+                                    double tax = Double.parseDouble((String) model.getValueAt(row, column));
+                                    if (tax < 0) {
+                                        JOptionPane.showMessageDialog(null, "Tax cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                                        model.setValueAt(String.format("%.2f", item.getTaxCost()), row, column);
+                                    } else {
+                                        item.setTaxCost(tax);
+                                        model.setValueAt(String.format("%.2f", item.getTaxCost()), row, column);
+                                    }
+                                }
+                                catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(null, "Invalid tax cost format", "Error", JOptionPane.ERROR_MESSAGE);
+                                    model.setValueAt(String.format("%.2f", item.getTaxCost()), row, column);
+                                }
+                                break;
+                            case 4:
+                                try {
+                                    double shipping = Double.parseDouble((String) model.getValueAt(row, column));
+                                    if (shipping < 0) {
+                                        JOptionPane.showMessageDialog(null, "Shipping cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                                        model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
+                                    }
+                                    else {
+                                        item.setHasShipping(shipping != 0);
+                                        item.setShippingCost(shipping);
+                                        model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
+                                    }
+                                }
+                                catch (NumberFormatException ex) {
+                                    JOptionPane.showMessageDialog(null, "Invalid shipping cost format", "Error", JOptionPane.ERROR_MESSAGE);
+                                    model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
+                                }
                                 break;
                         }
 
                         SwingUtilities.invokeLater(() -> {
+                            try{
                             String formattedTotal = String.format(Locale.US, "%.2f", item.getTotalPrice(false));
                             model.setValueAt(formattedTotal, row, 6);
+                        }
+                            catch (Exception ex){
+                                JOptionPane.showMessageDialog(null, "Error updating cart", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
                         });
 
                     } catch (NumberFormatException ex) {
@@ -545,6 +587,7 @@ public class ShoppingMainGUI extends JFrame{
      * @param item
      */
     public void addItemToCart(ShoppingItem item) {
+        try{
         shoppingCart.addItem(item);
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
 
@@ -558,16 +601,25 @@ public class ShoppingMainGUI extends JFrame{
         };
         tableModel.addRow(rowData);
     }
+        catch (Exception ex){
+            JOptionPane.showMessageDialog(null, "Error adding item", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     /**
      * this is a method to delete an item in the cart
      * @param index
      */
     public void deleteItem(int index) {
+        try{
         shoppingCart.getItems().remove(index);
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
         tableModel.removeRow(index);
         updateShoppingCartTableItems();
+    }
+        catch (Exception ex){
+            JOptionPane.showMessageDialog(null, "Error deleting item", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -610,6 +662,7 @@ public class ShoppingMainGUI extends JFrame{
     }
 
     public void updateShoppingCartTableItems() {
+        try{
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
         tableModel.setRowCount(0);
         for (ShoppingItem item : shoppingCart.getItems()) {
@@ -625,6 +678,10 @@ public class ShoppingMainGUI extends JFrame{
             tableModel.addRow(rowData);
         }
     }
+        catch (Exception ex){
+            JOptionPane.showMessageDialog(null, "Error updating cart", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     /**
      * this is a method to update the cart table
@@ -632,6 +689,7 @@ public class ShoppingMainGUI extends JFrame{
      * @param rowIndex
      */
     public void updateShoppingCartTableItem(ShoppingItem updatedItem, int rowIndex) {
+        try {
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
 
         tableModel.setValueAt(updatedItem.getName(), rowIndex, 0);
@@ -650,6 +708,10 @@ public class ShoppingMainGUI extends JFrame{
         tableModel.setValueAt(String.format("%.2f", total), rowIndex, 6);
 
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
+    }
+        catch (Exception ex){
+            JOptionPane.showMessageDialog(null, "Error updating cart", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
