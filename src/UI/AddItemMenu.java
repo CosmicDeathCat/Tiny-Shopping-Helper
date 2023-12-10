@@ -34,60 +34,27 @@ public class AddItemMenu extends JFrame {
 
     private SaleType selectedSaleType = SaleType.None;
 
+    private double taxRate;
+
     /**
      * This is a contructor that creates the add item menu
      * @param mainForm
      */
-    public AddItemMenu(ShoppingMainGUI mainForm) {
+    public AddItemMenu(ShoppingMainGUI mainForm, double taxRate) {
         this.mainForm = mainForm;
-        getContentPane().setLayout(new BorderLayout());
+        this.taxRate = taxRate;
 
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        contentPanel.add(itemNameLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 0;
         itemNameInput.setPreferredSize(new Dimension(200, 24));
-        contentPanel.add(itemNameInput, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        contentPanel.add(itemQuantityLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
         itemQuantityInput.setPreferredSize(new Dimension(200, 24));
-        contentPanel.add(itemQuantityInput, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        contentPanel.add(itemPriceLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 2;
         itemPriceInput.setPreferredSize(new Dimension(200, 24));
-        contentPanel.add(itemPriceInput, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        contentPanel.add(shippingYesNoLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        itemShippingDropDown = new JComboBox<>(new String[]{"No", "Yes"});
-        contentPanel.add(itemShippingDropDown, gbc);
 
         itemShippingCostLabel.setVisible(false);
         itemShippingInput.setVisible(false);
 
+        itemShippingDropDown.addItem("No");
+        itemShippingDropDown.addItem("Yes");
         itemShippingDropDown.addActionListener(new ActionListener() {
             /**
              * This method shows the shipping cost input if the user selects yes
@@ -106,42 +73,11 @@ public class AddItemMenu extends JFrame {
             }
         });
 
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        contentPanel.add(itemShippingCostLabel, gbc);
+        for (SaleType saleType : SaleType.values()) {
+            saleTypeDropDown.addItem(saleType);
+        }
 
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        itemShippingInput.setPreferredSize(new Dimension(200, 24));
-        contentPanel.add(itemShippingInput, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        contentPanel.add(itemSaleTypeLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 5;
-        saleTypeDropDown = new JComboBox<>(SaleType.values());
-        contentPanel.add(saleTypeDropDown, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        contentPanel.add(saleTypeCondition1, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 6;
-        condition1Input.setPreferredSize(new Dimension(200, 24));
-        contentPanel.add(condition1Input, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        contentPanel.add(saleTypeCondition2, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 7;
         condition2Input.setPreferredSize(new Dimension(200, 24));
-        contentPanel.add(condition2Input, gbc);
-
 
         saleTypeCondition1.setVisible(false);
         saleTypeCondition2.setVisible(false);
@@ -160,10 +96,6 @@ public class AddItemMenu extends JFrame {
             }
         });
 
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.gridwidth = 2;
-        contentPanel.add(addItemButton, gbc);
 
         addItemButton.addActionListener(new ActionListener() {
             /**
@@ -185,6 +117,7 @@ public class AddItemMenu extends JFrame {
                 item.setName(itemName);
                 item.setPrice(itemPrice);
                 item.setQuantity(itemQuantity);
+                item.setTaxRate(taxRate);
                 item.setHasShipping("Yes".equals(itemShippingDropDown.getSelectedItem()));
                 item.setShippingCost(itemShippingCost);
                 item.setSaleType(selectedSaleType);
@@ -240,13 +173,21 @@ public class AddItemMenu extends JFrame {
                     }
                 }
 
+                item.setTaxCost(item.getTaxCost());
                 mainForm.addItemToCart(item);
+                mainForm.getCartTotalTax();
+                mainForm.getCartSubtotal();
 
                 dispose();
             }
         });
 
-        getContentPane().add(contentPanel, BorderLayout.CENTER);
+        add(mainPanel);
+        setTitle("Add Item");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     /**

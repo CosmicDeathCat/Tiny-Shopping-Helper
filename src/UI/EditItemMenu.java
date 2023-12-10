@@ -4,7 +4,6 @@ import data.SaleType;
 import data.ShoppingItem;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -160,13 +159,15 @@ public class EditItemMenu extends JFrame{
                 }
                 item.setHasShipping(itemShippingDropDown.getSelectedIndex() == 1);
                 item.setShippingCost(Double.parseDouble(itemShippingInput.getText()));
-                updateShoppingCartTable(item);
+                mainForm.updateShoppingCartTableItem(item, rowIndex);
+                mainForm.getCartTotalTax();
+                mainForm.getCartSubtotal();
                 dispose();
             }
         });
         add(mainPanel);
         setTitle("Edit Item");
-        setSize(400, 400);
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -236,28 +237,7 @@ public class EditItemMenu extends JFrame{
         }
     }
 
-    private void updateShoppingCartTable(ShoppingItem updatedItem) {
-        DefaultTableModel tableModel = (DefaultTableModel) mainForm.shoppingCartTable.getModel();
 
-        // Update the table model with the new details of the edited item
-        tableModel.setValueAt(updatedItem.getName(), rowIndex, 0);
-        tableModel.setValueAt(String.format("%.2f", updatedItem.getPrice()), rowIndex, 1);
-        tableModel.setValueAt(String.valueOf(updatedItem.getQuantity()), rowIndex, 2);
-
-        // Calculate the tax amount and convert to string
-        double taxRate = updatedItem.getTaxRate();
-        tableModel.setValueAt(String.format("%.2f", taxRate), rowIndex, 3);
-
-        // Convert shipping cost to string
-        tableModel.setValueAt(String.format("%.2f", updatedItem.getShippingCost()), rowIndex, 4);
-
-        // Calculate the total and convert to string
-        double total = updatedItem.getTotalPrice(false, false);
-        tableModel.setValueAt(String.format("%.2f", total), rowIndex, 5);
-
-        // Update the UI
-        tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
-    }
 
 
 

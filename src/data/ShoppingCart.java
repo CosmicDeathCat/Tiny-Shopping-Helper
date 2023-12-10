@@ -140,7 +140,7 @@ public class ShoppingCart {
             itemToEdit.setAmountOff(item.getAmountOff());
             itemToEdit.setAmountX(item.getAmountX());
             itemToEdit.setAmountY(item.getAmountY());
-            itemToEdit.setTaxRate(getTaxRate());
+            itemToEdit.setTaxCost(getTaxRate());
             itemToEdit.setHasShipping(item.getHasShipping());
             itemToEdit.setShippingCost(item.getShippingCost());
         }
@@ -164,7 +164,7 @@ public class ShoppingCart {
 
     public double calculateTotalTax() {
         totalTax = 0.0;
-        totalTax += calculateSubTotal() * (taxRate / 100);
+        totalTax += calculateSubTotal() * taxRate;
         return totalTax;
     }
 
@@ -291,7 +291,7 @@ public class ShoppingCart {
 
                 for (ShoppingItem item : items) {
                     writer.write(String.format(locale, "%-20s $%-8.2f %-9d $%-10.2f $%-14.2f $%-11.2f\n",
-                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxRate(),
+                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
                             item.getShippingCost(), item.getTotalPrice(false, true)));
                 }
 
@@ -308,7 +308,7 @@ public class ShoppingCart {
 
                 for (ShoppingItem item : items) {
                     writer.write(String.format(locale, "\"%s\",%.2f,%d,%.2f,%.2f,%.2f\n",
-                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxRate(),
+                            item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
                             item.getShippingCost(), item.getTotalPrice(false, true)));
                 }
 

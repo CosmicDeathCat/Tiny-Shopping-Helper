@@ -75,7 +75,7 @@ public class DataSaver {
             writer.write("\nSubtotal: " + cart.getSubTotal() + "\n");
             double shippingCost = cart.getItems().stream().mapToDouble(ShoppingItem::getShippingCost).sum();
             writer.write("Shipping Cost: " + shippingCost + "\n");
-            writer.write("Total: " + cart.getTotal() + "\n");
+            writer.write("Grand Total: " + cart.getTotal() + "\n");
         }
     }
 

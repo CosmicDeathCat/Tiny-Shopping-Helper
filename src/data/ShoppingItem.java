@@ -24,6 +24,9 @@ public class ShoppingItem {
 
     private int amountY = 0;
 
+    @FieldLabel("Tax Cost")
+    private double taxCost = 0.0;
+
     @FieldLabel("Tax Rate")
     private double taxRate = 0.0;
 
@@ -57,14 +60,15 @@ public class ShoppingItem {
 
     public int getAmountY () { return amountY; }
 
-    public double getTaxRate () {
-        return taxRate;
+    public double getTaxCost() {
+        return (this.price * this.quantity) * taxRate;
     }
+
+    public double getTaxRate() { return taxRate; }
 
     public boolean getHasShipping () { return hasShipping; }
 
     public double getShippingCost () { return shippingCost; }
-
 
     public void setName (String name) { this.name = name; }
 
@@ -82,7 +86,9 @@ public class ShoppingItem {
 
     public void setAmountY (int amountY) { this.amountY = amountY; }
 
-    public void setTaxRate (double taxRate) { this.taxRate = taxRate; }
+    public void setTaxCost(double taxCost) { this.taxCost = taxCost; }
+
+    public void setTaxRate(double taxRate) { this.taxRate = taxRate; }
 
     public void setHasShipping (boolean hasShipping) { this.hasShipping = hasShipping; }
 
@@ -90,10 +96,10 @@ public class ShoppingItem {
 
     /**
      * Calculates the total price of an item
-     * @param includeTax
+     * @param includeTaxCost
      * @return
      */
-    public double getTotalPrice (boolean includeTax, boolean includeShipping) {
+    public double getTotalPrice (boolean includeTaxCost, boolean includeShipping) {
         double subtotal = 0;
 
         switch (saleType){
@@ -126,11 +132,8 @@ public class ShoppingItem {
         if (includeShipping && this.hasShipping) {
             subtotal += this.shippingCost;
         }
-        if (includeTax) {
-            if (this.taxRate == 0.0) {
-                return subtotal;
-            }
-            return Math.round(subtotal * (1 + this.taxRate) * 100.0) / 100.0;
+        if (includeTaxCost) {
+            subtotal += getTaxCost();
         }
         return subtotal;
     }
@@ -168,7 +171,7 @@ public class ShoppingItem {
      */
     @Override
     public String toString() {
-        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType.toString() + "\nTax Rate: " + taxRate + "\nSubtotal: " + getTotalPrice(false, false) + "\nTotal: " + getTotalPrice(true, true);
+        return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType.toString() + "\nTax Rate: " + taxRate + "\nTax Cost: " + getTaxCost() + "\nSubtotal: " + getTotalPrice(false, false) + "\nTotal: " + getTotalPrice(true, true);
     }
 
     

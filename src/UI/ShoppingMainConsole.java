@@ -10,8 +10,6 @@ import utility.DataSaver;
 
 import javax.swing.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -427,7 +425,7 @@ public class ShoppingMainConsole {
                 item.setAmountOff(enterItemAmountOff(scnr));
             }
         }
-        item.setTaxRate(Cart.getTaxRate());
+        item.setTaxCost(Cart.getTaxRate());
 //        item.setTaxRate(enterItemTaxRate(scnr));
         item.setHasShipping(enterItemHasShipping(scnr));
         if (item.getHasShipping()) {

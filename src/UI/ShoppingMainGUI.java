@@ -28,21 +28,29 @@ public class ShoppingMainGUI extends JFrame{
     private JButton saveProgressButton;
     private JScrollPane shoppingCartScroll;
     private JButton deleteButton;
-    private JLabel cartTotalLabel;
+    private JLabel cartGrandTotalLabel;
     private JButton loadButton;
     private JButton editButton;
+    private JLabel cartTaxRateLabel;
+    private JLabel cartSubtotalLabel;
+    private JTextField taxRateInput;
+    private JLabel cartTotalTaxLabel;
 
-    private double taxRate;
+    public double taxRate;
 
 
     /**
      * this is a constructor for the main GUI
-     * @param taxRate
+     * @param tax
      */
-    public ShoppingMainGUI(Double taxRate) {
+    public ShoppingMainGUI(Double tax) {
         setTitle("Tiny Shopping Helper");
-        this.taxRate = taxRate;
-        shoppingCart.setTaxRate(taxRate);
+        this.taxRate = tax;
+        shoppingCart.setTaxRate(tax);
+        cartTaxRateLabel.setText("Tax Rate: " + tax * 100 + "%");
+        taxRateInput.setText(String.valueOf(tax));
+        getCartTotalTax();
+        getCartSubtotal();
 
         JPanel contentPane = (JPanel) getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -51,7 +59,7 @@ public class ShoppingMainGUI extends JFrame{
 
         DefaultTableModel tableModel = new DefaultTableModel(
             new String[]{
-                    "Item Name", "Item Price", "Item Quantity", "Item Tax","Shipping Cost", "Item Total"
+                    "Item Name", "Item Price", "Item Quantity", "Item Tax Cost","Shipping Cost", "Item Total"
             },
             0){
         /**
@@ -93,12 +101,14 @@ public class ShoppingMainGUI extends JFrame{
                                 item.setPrice(Double.parseDouble((String) model.getValueAt(row, column)));
                                  num = Double.parseDouble((String) model.getValueAt(row, column));
                                 model.setValueAt(String.format("%.2f", num), row, column);
+                                model.setValueAt(String.format("%.2f", item.getTaxCost()), row, 3);
                                 break;
                             case 2:
                                 item.setQuantity(Integer.parseInt((String) model.getValueAt(row, column)));
+                                model.setValueAt(String.format("%.2f", item.getTaxCost()), row, 3);
                                 break;
                             case 3:
-                                item.setTaxRate(Double.parseDouble((String) model.getValueAt(row, column)));
+                                item.setTaxCost(Double.parseDouble((String) model.getValueAt(row, column)));
                                 num = Double.parseDouble((String) model.getValueAt(row, column));
                                 model.setValueAt(String.format("%.2f", num), row, column);
                                 break;
@@ -119,9 +129,12 @@ public class ShoppingMainGUI extends JFrame{
                         JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
                         if(column == 1) model.setValueAt(String.format("%.2f", item.getPrice()), row, column);
                         if(column == 2) model.setValueAt(item.getQuantity(), row, column);
+                        if(column == 3) model.setValueAt(String.format("%.2f", item.getTaxCost()), row, column);
                         if(column == 4) model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
                     } finally {
                         isUpdating = false;
+                        getCartTotalTax();
+                        getCartSubtotal();
                     }
                 }
             }
@@ -135,13 +148,7 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
-                AddItemMenu addItemMenu = new AddItemMenu(ShoppingMainGUI.this);
-
-                addItemMenu.setTitle("Add Item");
-                addItemMenu.setSize(400, 400);
-                addItemMenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                addItemMenu.setLocationRelativeTo(null);
-                addItemMenu.setVisible(true);
+                AddItemMenu addItemMenu = new AddItemMenu(ShoppingMainGUI.this, taxRate);
             }
         });
         calculateTotalButton.addActionListener(new ActionListener() {
@@ -151,6 +158,8 @@ public class ShoppingMainGUI extends JFrame{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                getCartTotalTax();
+                getCartSubtotal();
                 getCartTotal();
             }
         });
@@ -175,6 +184,8 @@ public class ShoppingMainGUI extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 int index = shoppingCartTable.getSelectedRow();
                 deleteItem(index);
+                getCartTotalTax();
+                getCartSubtotal();
             }
         });
         saveProgressButton.addActionListener(new ActionListener() {
@@ -222,21 +233,10 @@ public class ShoppingMainGUI extends JFrame{
              if (result == JFileChooser.APPROVE_OPTION) {
                  String path = fileChooser.getSelectedFile().getAbsolutePath();
                  shoppingCart.loadCart(path);
-                 DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
-                 tableModel.setRowCount(0);
-                 for (ShoppingItem item : shoppingCart.getItems()) {
-                     // Format the numeric values to have two decimal places
-                     Object[] rowData = {
-                             item.getName(),
-                             String.format("%.2f", item.getPrice()),
-                             item.getQuantity(),
-                             String.format("%.2f", shoppingCart.getTaxRate()),
-                             String.format("%.2f", item.getShippingCost()),
-                             String.format("%.2f", item.getTotalPrice(false, true))
-                     };
-                     tableModel.addRow(rowData);
-                 }
+                 updateShoppingCartTableItems();
              }
+             getCartTotalTax();
+             getCartSubtotal();
          }
      });
         saveReceiptButton.addActionListener(new ActionListener() {
@@ -267,6 +267,39 @@ public class ShoppingMainGUI extends JFrame{
         }
     });
 
+        taxRateInput.addActionListener(new ActionListener() {
+            /**
+             * this is a method to change the tax rate
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    double tax = Double.parseDouble(taxRateInput.getText());
+                    if (tax < 0) {
+                        JOptionPane.showMessageDialog(null, "Tax rate cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
+                        taxRateInput.setText(String.valueOf(taxRate));
+                    } else {
+                        taxRate = tax;
+                        shoppingCart.setTaxRate(tax);
+
+                        for (ShoppingItem item : shoppingCart.getItems()) {
+                            item.setTaxRate(tax);
+                        }
+
+                        cartTaxRateLabel.setText("Tax Rate: " + tax * 100 + "%");
+
+                        updateShoppingCartTableItems();
+                        getCartTotalTax();
+                        getCartSubtotal();
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
+                    taxRateInput.setText(String.valueOf(tax));
+                }
+            }
+        });
+
 
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -286,7 +319,7 @@ public class ShoppingMainGUI extends JFrame{
                 item.getName(),
                 String.format("%.2f", item.getPrice()),
                 item.getQuantity(),
-                String.format("%.2f", shoppingCart.getTaxRate()),
+                String.format("%.2f", item.getTaxCost()),
                 String.format("%.2f", item.getShippingCost()),
                 String.format("%.2f", item.getTotalPrice(false, true))
         };
@@ -301,14 +334,66 @@ public class ShoppingMainGUI extends JFrame{
         shoppingCart.getItems().remove(index);
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
         tableModel.removeRow(index);
+        updateShoppingCartTableItems();
+    }
+
+    public void getCartTotalTax() {
+        double totalTax = shoppingCart.calculateTotalTax();
+        cartTotalTaxLabel.setText(String.format("Total Tax: %.2f", totalTax));
+    }
+
+    public void getCartSubtotal() {
+        double subtotal = shoppingCart.calculateSubTotal();
+        cartSubtotalLabel.setText(String.format("Subtotal: %.2f", subtotal));
     }
 
     /**
      * this gets the total of the cart
      */
     public void getCartTotal() {
-        double total = shoppingCart.calculateTotal();
-        cartTotalLabel.setText("Total: " + total);
+        double grandTotal = shoppingCart.calculateTotal();
+        cartGrandTotalLabel.setText(String.format("Grand Total: %.2f", grandTotal));
+
+    }
+
+    public void updateShoppingCartTableItems() {
+        DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
+        tableModel.setRowCount(0);
+        for (ShoppingItem item : shoppingCart.getItems()) {
+            // Format the numeric values to have two decimal places
+            Object[] rowData = {
+                    item.getName(),
+                    String.format("%.2f", item.getPrice()),
+                    item.getQuantity(),
+                    String.format("%.2f", item.getTaxCost()),
+                    String.format("%.2f", item.getShippingCost()),
+                    String.format("%.2f", item.getTotalPrice(false, true))
+            };
+            tableModel.addRow(rowData);
+        }
+    }
+
+    public void updateShoppingCartTableItem(ShoppingItem updatedItem, int rowIndex) {
+        DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
+
+        // Update the table model with the new details of the edited item
+        tableModel.setValueAt(updatedItem.getName(), rowIndex, 0);
+        tableModel.setValueAt(String.format("%.2f", updatedItem.getPrice()), rowIndex, 1);
+        tableModel.setValueAt(String.valueOf(updatedItem.getQuantity()), rowIndex, 2);
+
+        // Calculate the tax amount and convert to string
+        double taxCost = updatedItem.getTaxCost();
+        tableModel.setValueAt(String.format("%.2f", taxCost), rowIndex, 3);
+
+        // Convert shipping cost to string
+        tableModel.setValueAt(String.format("%.2f", updatedItem.getShippingCost()), rowIndex, 4);
+
+        // Calculate the total and convert to string
+        double total = updatedItem.getTotalPrice(false, false);
+        tableModel.setValueAt(String.format("%.2f", total), rowIndex, 5);
+
+        // Update the UI
+        tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
     }
 
     /**
