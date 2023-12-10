@@ -23,9 +23,9 @@ public class AddItemMenu extends JFrame {
     private JLabel itemSaleTypeLabel;
     private JLabel shippingYesNoLabel;
     private JLabel itemShippingCostLabel;
-    private JLabel saleTypeConditon1;
+    private JLabel saleTypeCondition1;
     private JTextField condition1Input;
-    private JLabel saleTypeConditon2;
+    private JLabel saleTypeCondition2;
     private JTextField condition2Input;
     private JButton addItemButton;
     private JTextField itemPriceInput;
@@ -126,7 +126,7 @@ public class AddItemMenu extends JFrame {
 
         gbc.gridx = 0;
         gbc.gridy = 6;
-        contentPanel.add(saleTypeConditon1, gbc);
+        contentPanel.add(saleTypeCondition1, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 6;
@@ -135,7 +135,7 @@ public class AddItemMenu extends JFrame {
 
         gbc.gridx = 0;
         gbc.gridy = 7;
-        contentPanel.add(saleTypeConditon2, gbc);
+        contentPanel.add(saleTypeCondition2, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 7;
@@ -143,8 +143,8 @@ public class AddItemMenu extends JFrame {
         contentPanel.add(condition2Input, gbc);
 
 
-        saleTypeConditon1.setVisible(false);
-        saleTypeConditon2.setVisible(false);
+        saleTypeCondition1.setVisible(false);
+        saleTypeCondition2.setVisible(false);
         condition1Input.setVisible(false);
         condition2Input.setVisible(false);
 
@@ -256,60 +256,60 @@ public class AddItemMenu extends JFrame {
 
         switch (selectedSaleType) {
             case None -> {
-                saleTypeConditon1.setVisible(false);
-                saleTypeConditon2.setVisible(false);
+                saleTypeCondition1.setVisible(false);
+                saleTypeCondition2.setVisible(false);
                 condition1Input.setVisible(false);
                 condition2Input.setVisible(false);
             }
             case PercentOff -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Percent Off");
-                saleTypeConditon2.setVisible(false);
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Percent Off");
+                saleTypeCondition2.setVisible(false);
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(false);
             }
             case BuyXGetPercentOffTotal -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Buy How Many?");
-                saleTypeConditon2.setVisible(true);
-                saleTypeConditon2.setText("Percent Off");
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Buy How Many?");
+                saleTypeCondition2.setVisible(true);
+                saleTypeCondition2.setText("Percent Off");
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(true);
             }
             case BuyXGetYPercentOff -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Buy How Many?");
-                saleTypeConditon2.setVisible(true);
-                saleTypeConditon2.setText("Percent Off");
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Buy How Many?");
+                saleTypeCondition2.setVisible(true);
+                saleTypeCondition2.setText("Percent Off");
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(true);
             }
             case BuyXGetYFree -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Buy How Many?");
-                saleTypeConditon2.setVisible(true);
-                saleTypeConditon2.setText("Get How Many Free?");
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Buy How Many?");
+                saleTypeCondition2.setVisible(true);
+                saleTypeCondition2.setText("Get How Many Free?");
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(true);
             }
             case AmountOff -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Amount Off");
-                saleTypeConditon2.setVisible(false);
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Amount Off");
+                saleTypeCondition2.setVisible(false);
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(false);
             }
             case AmountOffEach -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Amount Off Each");
-                saleTypeConditon2.setVisible(false);
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Amount Off Each");
+                saleTypeCondition2.setVisible(false);
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(false);
             }
             case AmountOffTotal -> {
-                saleTypeConditon1.setVisible(true);
-                saleTypeConditon1.setText("Amount Off Total");
-                saleTypeConditon2.setVisible(false);
+                saleTypeCondition1.setVisible(true);
+                saleTypeCondition1.setText("Amount Off Total");
+                saleTypeCondition2.setVisible(false);
                 condition1Input.setVisible(true);
                 condition2Input.setVisible(false);
             }

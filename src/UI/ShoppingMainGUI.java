@@ -1,9 +1,7 @@
 package ui;
 
-import annotations.FieldLabel;
 import data.ShoppingCart;
 import data.ShoppingItem;
-import utility.DataSaver;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -13,14 +11,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileFilter;
-import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class ShoppingMainGUI extends JFrame{
 
     public static ShoppingCart shoppingCart = new ShoppingCart();
+    public JTable shoppingCartTable;
     private JPanel TSHPanel;
     private JPanel btnBar;
     private JLabel applicationNameLabel;
@@ -28,13 +24,13 @@ public class ShoppingMainGUI extends JFrame{
     private JPanel topButtonBar;
     private JButton addItemButton;
     private JButton calculateTotalButton;
-    private JTable shoppingCartTable;
     private JButton saveReceiptButton;
     private JButton saveProgressButton;
     private JScrollPane shoppingCartScroll;
     private JButton deleteButton;
     private JLabel cartTotalLabel;
     private JButton loadButton;
+    private JButton editButton;
 
     private double taxRate;
 
@@ -72,12 +68,14 @@ public class ShoppingMainGUI extends JFrame{
         shoppingCartTable.setModel(tableModel);
 
         tableModel.addTableModelListener(new TableModelListener() {
-            /**
-             * this is a method to listen for changes in the table
-             * @param e
-             */
+            private boolean isUpdating = false;
+
             @Override
             public void tableChanged(TableModelEvent e) {
+                if (isUpdating) {
+                    return;
+                }
+
                 int row = e.getFirstRow();
                 int column = e.getColumn();
                 if (row >= 0 && column >= 0) {
@@ -85,21 +83,29 @@ public class ShoppingMainGUI extends JFrame{
                     ShoppingItem item = shoppingCart.getItems().get(row);
 
                     try {
+                        isUpdating = true;
+                        double num = 0;
                         switch (column) {
                             case 0:
                                 item.setName((String) model.getValueAt(row, column));
                                 break;
                             case 1:
-                                String priceValue = (String) model.getValueAt(row, column);
-                                item.setPrice(Double.parseDouble(priceValue.replaceAll("[^\\d.]", "")));
+                                item.setPrice(Double.parseDouble((String) model.getValueAt(row, column)));
+                                 num = Double.parseDouble((String) model.getValueAt(row, column));
+                                model.setValueAt(String.format("%.2f", num), row, column);
                                 break;
                             case 2:
-                                String quantityValue = (String) model.getValueAt(row, column);
-                                item.setQuantity(Integer.parseInt(quantityValue.replaceAll("[^\\d.]", "")));
+                                item.setQuantity(Integer.parseInt((String) model.getValueAt(row, column)));
+                                break;
+                            case 3:
+                                item.setTaxRate(Double.parseDouble((String) model.getValueAt(row, column)));
+                                num = Double.parseDouble((String) model.getValueAt(row, column));
+                                model.setValueAt(String.format("%.2f", num), row, column);
                                 break;
                             case 4:
-                                String shippingCostValue = (String) model.getValueAt(row, column);
-                                item.setShippingCost(Double.parseDouble(shippingCostValue.replaceAll("[^\\d.]", "")));
+                                item.setShippingCost(Double.parseDouble((String) model.getValueAt(row, column)));
+                                num = Double.parseDouble((String) model.getValueAt(row, column));
+                                model.setValueAt(String.format("%.2f", num), row, column);
                                 break;
                         }
 
@@ -110,11 +116,17 @@ public class ShoppingMainGUI extends JFrame{
                         });
 
                     } catch (NumberFormatException ex) {
-                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
+                        if(column == 1) model.setValueAt(String.format("%.2f", item.getPrice()), row, column);
+                        if(column == 2) model.setValueAt(item.getQuantity(), row, column);
+                        if(column == 4) model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
+                    } finally {
+                        isUpdating = false;
                     }
                 }
             }
         });
+
 
         addItemButton.addActionListener(new ActionListener() {
             /**
@@ -140,6 +152,18 @@ public class ShoppingMainGUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 getCartTotal();
+            }
+        });
+        editButton.addActionListener(new ActionListener() {
+            /**
+             * this is a method to edit an item in the cart
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int index = shoppingCartTable.getSelectedRow();
+                ShoppingItem item = shoppingCart.getItems().get(index);
+                EditItemMenu editItemMenu = new EditItemMenu(ShoppingMainGUI.this, item, index);
             }
         });
         deleteButton.addActionListener(new ActionListener() {
@@ -201,7 +225,15 @@ public class ShoppingMainGUI extends JFrame{
                  DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
                  tableModel.setRowCount(0);
                  for (ShoppingItem item : shoppingCart.getItems()) {
-                     Object[] rowData = {item.getName(), item.getPrice(), item.getQuantity(), shoppingCart.getTaxRate(), item.getShippingCost(), item.getTotalPrice(false, true)};
+                     // Format the numeric values to have two decimal places
+                     Object[] rowData = {
+                             item.getName(),
+                             String.format("%.2f", item.getPrice()),
+                             item.getQuantity(),
+                             String.format("%.2f", shoppingCart.getTaxRate()),
+                             String.format("%.2f", item.getShippingCost()),
+                             String.format("%.2f", item.getTotalPrice(false, true))
+                     };
                      tableModel.addRow(rowData);
                  }
              }
@@ -246,11 +278,18 @@ public class ShoppingMainGUI extends JFrame{
      * @param item
      */
     public void addItemToCart(ShoppingItem item) {
-
         shoppingCart.addItem(item);
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
 
-        Object[] rowData = {item.getName(), item.getPrice(), item.getQuantity(), shoppingCart.getTaxRate(), item.getShippingCost(),item.getTotalPrice(false, true)};
+        // Format the numeric values to have two decimal places
+        Object[] rowData = {
+                item.getName(),
+                String.format("%.2f", item.getPrice()),
+                item.getQuantity(),
+                String.format("%.2f", shoppingCart.getTaxRate()),
+                String.format("%.2f", item.getShippingCost()),
+                String.format("%.2f", item.getTotalPrice(false, true))
+        };
         tableModel.addRow(rowData);
     }
 

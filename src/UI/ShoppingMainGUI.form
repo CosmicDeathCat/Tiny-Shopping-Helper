@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ui.ShoppingMainGUI">
   <grid id="27dc6" binding="TSHPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="528" height="400"/>
+      <xy x="20" y="20" width="602" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -65,10 +65,16 @@
                   <text value="Add Item"/>
                 </properties>
               </component>
+              <component id="2b18e" class="javax.swing.JButton" binding="editButton">
+                <constraints/>
+                <properties>
+                  <text value="Edit Item"/>
+                </properties>
+              </component>
               <component id="9e117" class="javax.swing.JButton" binding="deleteButton">
                 <constraints/>
                 <properties>
-                  <text value="Delete"/>
+                  <text value="Delete Item"/>
                 </properties>
               </component>
               <component id="1bde" class="javax.swing.JButton" binding="calculateTotalButton">
