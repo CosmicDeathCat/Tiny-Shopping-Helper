@@ -26,7 +26,7 @@ public class SalesCalculator {
     public static double buyXgetPercentOffTotal (double subtotal, ShoppingItem item, int x, double percentOff) {
 
         if (item.getQuantity() >= x) {
-            return subtotal - ((subtotal * percentOff) / 100);
+            return (subtotal * percentOff) / 100;
         }
         return subtotal;
     }

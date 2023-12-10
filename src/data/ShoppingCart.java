@@ -185,7 +185,9 @@ public class ShoppingCart {
         for (ShoppingItem item : items) {
 
             switch (item.getSaleType()) {
-                case BuyXGetPercentOffTotal -> addAmountOff(SalesCalculator.buyXgetPercentOffTotal(subTotal, item, item.getAmountX(), item.getPercentOff()));
+                case BuyXGetPercentOffTotal -> {
+                    addAmountOff(SalesCalculator.buyXgetPercentOffTotal(subTotal, item, item.getAmountX(), item.getPercentOff()));
+                }
                 case AmountOffTotal -> addAmountOff(item.getAmountOff());
                 default -> {}
             }
@@ -200,16 +202,22 @@ public class ShoppingCart {
     public double calculateTotal() {
         total = 0.0;
         amountOff = 0.0;
+
         for (ShoppingItem item : items) {
             total += item.getTotalPrice(true);
         }
         for (ShoppingItem item : items) {
             switch (item.getSaleType()) {
-                case BuyXGetPercentOffTotal -> addAmountOff(SalesCalculator.buyXgetPercentOffTotal(total, item, item.getAmountX(), item.getPercentOff()));
-                case AmountOffTotal -> addAmountOff(item.getAmountOff());
+                case BuyXGetPercentOffTotal -> {
+                    addAmountOff(SalesCalculator.buyXgetPercentOffTotal(total, item, item.getAmountX(), item.getPercentOff()));
+                }
+                case AmountOffTotal ->{
+                    addAmountOff(item.getAmountOff());
+                }
                 default -> {}
             }
         }
+
         total -= amountOff;
         total += calculateShippingCost();
         return total;
