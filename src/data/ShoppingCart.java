@@ -133,6 +133,7 @@ public class ShoppingCart {
      * @param name
      */
     public void editItem(ShoppingItem item, String name) {
+        //this is a linear search, it will not exceed 100 items, so it is fine
         ShoppingItem itemToEdit = null;
         for (ShoppingItem i : items) {
             if (i.getName().equals(name)) {
@@ -175,6 +176,7 @@ public class ShoppingCart {
      * @return
      */
     public double calculateTotalTax() {
+        //this is the total tax for the cart
         totalTax = 0.0;
         totalTax += calculateSubTotal() * taxRate;
         return totalTax;
@@ -184,15 +186,18 @@ public class ShoppingCart {
      * This method calculates the subtotal of the cart.
      */
     public double calculateSubTotal() {
+        //this is the subtotal for the cart
         subTotal = 0.0;
         amountOff = 0.0;
         amountSaved = 0.0;
+        //this loop calculates the subtotal for the cart
         for (ShoppingItem item : items) {
             subTotal += item.getTotalPrice(false);
             amountSaved += item.getAmountSaved();
         }
+        //this loop calculates the amount off for the cart
         for (ShoppingItem item : items) {
-
+            //this switch statement calculates the amount off for the cart based on the sale type
             switch (item.getSaleType()) {
                 case BuyXGetPercentOffTotal -> {
                     addAmountOff(SalesCalculator.buyXgetPercentOffTotal(subTotal, item, item.getAmountX(), item.getPercentOff()));
@@ -211,14 +216,18 @@ public class ShoppingCart {
      * This method calculates the total of the cart.
      */
     public double calculateTotal() {
+        //this is the total for the cart
         total = 0.0;
         amountOff = 0.0;
         amountSaved = 0.0;
+        //this loop calculates the total for the cart
         for (ShoppingItem item : items) {
             total += item.getTotalPrice(true);
             amountSaved += item.getAmountSaved();
         }
+        //this loop calculates the amount off for the cart
         for (ShoppingItem item : items) {
+            //this switch statement calculates the amount off for the cart based on the sale type
             switch (item.getSaleType()) {
                 case BuyXGetPercentOffTotal -> {
                     addAmountOff(SalesCalculator.buyXgetPercentOffTotal(total, item, item.getAmountX(), item.getPercentOff()));
@@ -238,11 +247,14 @@ public class ShoppingCart {
      * This method calculates the shipping cost of the cart.
      */
     public double calculateShippingCost() {
+        //this is the shipping cost for the cart, also this if statement checks if the shipping cost is flat
         if (flatShipping) {
             return shippingCost;
         }
         shippingCost = 0.0;
+        //this loop calculates the shipping cost for the cart
         for (ShoppingItem item : items) {
+            //this if statement checks if the item has shipping
             if(item.getHasShipping()){
                 shippingCost += item.getShippingCost();
             }
@@ -254,6 +266,7 @@ public class ShoppingCart {
      * This a default constructor for the ShoppingCart class.
      */
     public ShoppingCart() {
+        //this is a default constructor
         this.items = new ArrayList<ShoppingItem>();
         this.subTotal = 0.0;
         this.total = 0.0;
@@ -266,7 +279,9 @@ public class ShoppingCart {
      * @param path
      */
     public void saveCart(String path) {
+        //this method saves the cart to a file
         var file = new File(path);
+        //this if statement checks if the file exists
         if (file.exists()) {
             file.delete();
         }
@@ -274,6 +289,7 @@ public class ShoppingCart {
         var GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
         var json = GSON.toJson(this);
         try {
+            //this writes the json to the file
             var writer = new java.io.FileWriter(file);
             writer.write(json);
             writer.close();
@@ -287,11 +303,14 @@ public class ShoppingCart {
      * @param path
      */
     public void loadCart(String path) {
+        //this method loads the cart from a file
         var file = new File(path);
+        //this if statement checks if the file exists
         if (!file.exists()) {
             return;
         }
         try {
+            //this reads the json from the file
             var reader = new java.io.FileReader(file);
             var GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
             var json = GSON.fromJson(reader, ShoppingCart.class);
@@ -304,6 +323,7 @@ public class ShoppingCart {
             reader.close();
 
         } catch (Exception e) {
+            //this exception is thrown if the file is not found
             e.printStackTrace();
         }
     }
@@ -315,11 +335,13 @@ public class ShoppingCart {
      * @param extension
      */
     public void saveReceipt(String path, String extension) {
+        //this method saves the receipt of the cart in either a text or csv file
         File file = new File(path);
+        //this if statement checks if the file exists
         if (file.exists()) {
             file.delete();
         }
-
+        //these variables are used to format the receipt
         int maxNameLength = items.stream().mapToInt(item -> item.getName().length()).max().orElse("Name".length());
         int maxPriceLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getPrice()).length()).max().orElse("Price".length()), "Price".length());
         int maxQuantityLength = Math.max(items.stream().mapToInt(item -> String.format("%d", item.getQuantity()).length()).max().orElse("Quantity".length()), "Quantity".length());
@@ -329,6 +351,7 @@ public class ShoppingCart {
         int maxTotalLength = Math.max(items.stream().mapToInt(item -> String.format("%.2f", item.getTotalPrice(false)).length()).max().orElse("Total Price".length()), "Total Price".length());;
 
         try (FileWriter writer = new FileWriter(file)) {
+            //this writes the receipt to the file
             Locale locale = Locale.US;
             String nameFormat = "%-" + maxNameLength + "s";
             String priceFormat = "%-" + maxPriceLength + "s";
@@ -337,7 +360,7 @@ public class ShoppingCart {
             String shippingFormat = "%-" + maxShippingLength + "s";
             String totalSavedFormat = "%-" + maxTotalSavedLength + "s";
             String totalFormat = "%-" + maxTotalLength + "s";
-
+            //this if statement checks if the extension is txt
             if (extension.equals("txt")) {
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalSavedFormat + " " + totalFormat + "\n",
                         "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Amount Saved", "Total Price"));
@@ -349,7 +372,7 @@ public class ShoppingCart {
                         String.join("", Collections.nCopies(maxShippingLength, "-")),
                         String.join("", Collections.nCopies(maxTotalSavedLength, "-")),
                         String.join("", Collections.nCopies(maxTotalLength, "-"))));
-
+                //this loop writes the items to the file
                 for (ShoppingItem item : items) {
                     writer.write(String.format(locale, nameFormat + " " + priceFormat + " " + quantityFormat + " " + taxFormat + " " + shippingFormat + " " + totalSavedFormat + " " + totalFormat + "\n",
                             item.getName(),
@@ -360,7 +383,7 @@ public class ShoppingCart {
                             String.format(locale, "%.2f", item.getAmountSaved()),
                             String.format(locale, "%.2f", item.getTotalPrice(false))));
                 }
-
+                //this writes the total tax, shipping cost, amount saved, subtotal, and total to the file
                 writer.write("--------------------------------------------------------" +
                         "----------------------\n");
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Total Tax:", String.format("%.2f", calculateTotalTax())));
@@ -370,14 +393,15 @@ public class ShoppingCart {
                 writer.write(String.format(locale, nameFormat + " " + priceFormat + "\n", "Total:", String.format("%.2f", calculateTotal())));
 
             } else if (extension.equals("csv")) {
+                //this else if statement checks if the extension is csv
                 writer.write(String.join(",", "Name", "Price", "Quantity", "Tax Cost", "Shipping Cost", "Amount Saved", "Total Price") + "\n");
-
+                //this loop writes the items to the file
                 for (ShoppingItem item : items) {
                     writer.write(String.format(locale, "\"%s\",%.2f,%d,%.2f,%.2f,%.2f,%.2f\n",
                             item.getName(), item.getPrice(), item.getQuantity(), item.getTaxCost(),
                             item.getShippingCost(), item.getAmountSaved(), item.getTotalPrice(false)));
                 }
-
+                //this writes the total tax, shipping cost, amount saved, subtotal, and total to the file
                 writer.write("\n");
                 writer.write(String.format(locale, "Total Tax,%s\n", String.format(locale, "%.2f", calculateTotalTax())));
                 writer.write(String.format(locale, "Shipping Cost,%s\n", String.format(locale, "%.2f", calculateShippingCost())));

@@ -45,6 +45,7 @@ public class AddItemMenu extends JDialog {
      * @param mainForm
      */
     public AddItemMenu(ShoppingMainGUI mainForm, double taxRate) {
+        // This line of code is required to make the dialog modal.
         super(mainForm, true);
         this.mainForm = mainForm;
         this.taxRate = taxRate;
@@ -57,7 +58,7 @@ public class AddItemMenu extends JDialog {
 
         itemShippingCostLabel.setVisible(false);
         itemShippingInput.setVisible(false);
-
+        //this is the drop down menu for the sale type
         itemShippingDropDown.addItem("No");
         itemShippingDropDown.addItem("Yes");
         itemShippingDropDown.addActionListener(new ActionListener() {
@@ -67,7 +68,9 @@ public class AddItemMenu extends JDialog {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                // This is the code that runs when the user selects an item from the dropdown menu.
                 String selectedOption = (String) itemShippingDropDown.getSelectedItem();
+                // This if statement checks if the user selected "Yes".
                 if ("Yes".equals(selectedOption)) {
                     itemShippingCostLabel.setVisible(true);
                     itemShippingInput.setVisible(true);
@@ -77,13 +80,13 @@ public class AddItemMenu extends JDialog {
                 }
             }
         });
-
+        //this is the drop down menu for the sale type
         for (SaleType saleType : SaleType.values()) {
             saleTypeDropDown.addItem(saleType);
         }
 
         condition2Input.setPreferredSize(new Dimension(200, 24));
-
+        //these are the labels for the sale type conditions
         saleTypeCondition1.setVisible(false);
         saleTypeCondition2.setVisible(false);
         condition1Input.setVisible(false);
@@ -96,6 +99,7 @@ public class AddItemMenu extends JDialog {
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                // This is the code that runs when the user selects an item from the dropdown menu.
                 selectedSaleType = (SaleType) saleTypeDropDown.getSelectedItem();
                 updateConditionVisibility();
             }
@@ -110,9 +114,11 @@ public class AddItemMenu extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
+                    // This is the code that runs when the user clicks the button.
                 String itemName = itemNameInput.getText();
 
                 double itemPrice = Double.parseDouble(itemPriceInput.getText());
+                //this if statement checks if the user entered a negative number
                 if (itemPrice < 0) {
                     throw new NumberFormatException();
                 }
@@ -127,7 +133,6 @@ public class AddItemMenu extends JDialog {
                         throw new NumberFormatException();
                     }
                 }
-
                 ShoppingItem item = new ShoppingItem();
                 item.setName(itemName);
                 item.setPrice(itemPrice);
@@ -136,6 +141,7 @@ public class AddItemMenu extends JDialog {
                 item.setHasShipping("Yes".equals(itemShippingDropDown.getSelectedItem()));
                 item.setShippingCost(itemShippingCost);
                 item.setSaleType(selectedSaleType);
+                //these are the conditions for the sale types
                 switch (selectedSaleType) {
                     case None -> {
                         item.setPercentOff(0.0);
@@ -189,6 +195,7 @@ public class AddItemMenu extends JDialog {
                         item.setAmountSaved(item.getAmountOff());
                     }
                 }
+                //this is the tax cost
                 item.setTaxCost(item.getTaxCost());
                 mainForm.addItemToCart(item);
                 mainForm.updateShoppingCartTableItems();
@@ -204,7 +211,7 @@ public class AddItemMenu extends JDialog {
                 }
             }
         });
-
+        //this is the main panel
         add(mainPanel);
         setTitle("Add Item");
         setSize(400, 300);
@@ -217,7 +224,7 @@ public class AddItemMenu extends JDialog {
      * This method sets the visibility of the condition inputs based on the sale type selected
      */
     private void updateConditionVisibility() {
-
+        //this is the switch statement for the sale type for the condition inputs
         switch (selectedSaleType) {
             case None -> {
                 saleTypeCondition1.setVisible(false);

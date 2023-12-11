@@ -7,6 +7,7 @@ import core.SalesCalculator;
  * This class contains methods for a shopping item.
  */
 public class ShoppingItem {
+    //using field labels to make the UI look nicer and to make it easier to add new fields
     @FieldLabel("Name")
     private String name;
     @FieldLabel("Quantity")
@@ -63,6 +64,7 @@ public class ShoppingItem {
     public int getAmountY () { return amountY; }
 
     public double getTaxCost() {
+        //this is the tax cost for the item
         return (this.price * this.quantity) * taxRate;
     }
 
@@ -73,6 +75,7 @@ public class ShoppingItem {
     public double getShippingCost () { return shippingCost; }
 
     public double getAmountSaved () {
+        //this is the amount saved for the item based on the sale type
 
         double subtotal = this.price * this.quantity;
         double postSalePrice = subtotal;
@@ -138,7 +141,9 @@ public class ShoppingItem {
      * @return
      */
     public double getTotalPrice (boolean includeTaxCost) {
+        //this is the total price for the item
         double subtotal = this.price * this.quantity;
+        //this switch statement calculates the subtotal based on the sale type
         switch (saleType){
 
             case None -> {
@@ -175,6 +180,7 @@ public class ShoppingItem {
      * Default constructor for a shopping item
      */
     public ShoppingItem() {
+        //default constructor
         this.name = "Item";
         this.quantity = 0;
         this.price = 0.0;
@@ -191,6 +197,7 @@ public class ShoppingItem {
      * @param taxRate
      */
     public ShoppingItem(String name, int quantity, double price, SaleType saleType, double taxRate) {
+        //constructor
         this.name = name;
         this.quantity = quantity;
         this.price = price;
@@ -204,6 +211,7 @@ public class ShoppingItem {
      */
     @Override
     public String toString() {
+        //this is the string representation of the item
         return "Name: " + name + "\nQuantity: " + quantity + "\nPrice: " + price + "\nSale Type: " + saleType.toString() + "\nTax Rate: " + taxRate + "\nTax Cost: " + getTaxCost() + "\nSubtotal: " + getTotalPrice(false) + "\nTotal: " + getTotalPrice(true);
     }
 

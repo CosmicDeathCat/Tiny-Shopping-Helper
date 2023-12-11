@@ -45,20 +45,21 @@ public class EditItemMenu extends JDialog{
      * @param rowIndex
      */
     public EditItemMenu(ShoppingMainGUI main, ShoppingItem item, int rowIndex) {
+        //this is a constructor for the Edit Item Menu
         super(main, true);
         this.mainForm = main;
         this.rowIndex = rowIndex;
         this.ItemNameInput.setText(item.getName());
         this.ItemQuantityInput.setText(String.valueOf(item.getQuantity()));
         this.itemPriceInput.setText(String.valueOf(item.getPrice()));
-
+        //this for loop adds the sale types to the dropdown menu
         for (SaleType saleType : SaleType.values()) {
             saleTypeDropDown.addItem(saleType);
         }
         saleTypeDropDown.setSelectedItem(item.getSaleType());
         selectedSaleType = item.getSaleType();
         updateConditionVisibility();
-
+        //this switch statement sets the condition inputs based on the sale type
         switch (item.getSaleType()) {
             case None -> {
             }
@@ -87,7 +88,7 @@ public class EditItemMenu extends JDialog{
                 condition1Input.setText(String.valueOf(item.getAmountOff()));
             }
         }
-
+        //these lines of code set the visibility of the shipping inputs
         itemShippingCostLabel.setVisible(false);
         itemShippingInput.setVisible(false);
         itemShippingDropDown.addItem("No");
@@ -99,6 +100,7 @@ public class EditItemMenu extends JDialog{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                //this method shows the shipping cost input if the user selects yes
                 String selectedOption = (String) itemShippingDropDown.getSelectedItem();
                 if ("Yes".equals(selectedOption)) {
                     itemShippingCostLabel.setVisible(true);
@@ -109,7 +111,7 @@ public class EditItemMenu extends JDialog{
                 }
             }
         });
-
+        //this line of code sets the shipping inputs based on the item
         int shippingIndex = item.getHasShipping() ? 1 : 0;
         itemShippingDropDown.setSelectedIndex(shippingIndex);
         itemShippingInput.setText(String.valueOf(item.getShippingCost()));
@@ -121,6 +123,7 @@ public class EditItemMenu extends JDialog{
              */
             @Override
             public void actionPerformed(ActionEvent e) {
+                //this method shows the condition inputs based on the sale type selected
                 selectedSaleType = (SaleType) saleTypeDropDown.getSelectedItem();
                 updateConditionVisibility();
             }
@@ -134,8 +137,10 @@ public class EditItemMenu extends JDialog{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
+                    //this method saves the item to the cart
                 item.setName(ItemNameInput.getText());
                 item.setQuantity(Integer.parseInt(ItemQuantityInput.getText()));
+                //this if statement checks if the quantity is less than 1
                 if (item.getQuantity() < 1) {
                     throw new NumberFormatException();
                 }
@@ -144,7 +149,7 @@ public class EditItemMenu extends JDialog{
                     throw new NumberFormatException();
                 }
                 item.setSaleType(selectedSaleType);
-
+                //this switch statement sets the condition inputs based on the sale type
                 switch (item.getSaleType()){
 
                     case None -> {
@@ -205,7 +210,7 @@ public class EditItemMenu extends JDialog{
      * This method shows the condition inputs based on the sale type selected
      */
     private void updateConditionVisibility() {
-
+        //this switch statement shows the condition inputs based on the sale type selected
         switch (selectedSaleType) {
             case None -> {
                 saleTypeCondition1.setVisible(false);

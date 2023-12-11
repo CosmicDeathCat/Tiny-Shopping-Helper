@@ -24,7 +24,7 @@ public class SalesCalculator {
      * @return
      */
     public static double buyXgetPercentOffTotal (double subtotal, ShoppingItem item, int x, double percentOff) {
-
+        //this if statement checks if the quantity is greater than or equal to x, and if it is, it calculates the price
         if (item.getQuantity() >= x) {
             return (subtotal * percentOff) / 100;
         }
@@ -39,6 +39,7 @@ public class SalesCalculator {
      * @return
      */
     public static double buyXgetYPercentOff (ShoppingItem item, int x, double percentOff) {
+        //this if statement checks if the quantity is greater than or equal to x, and if it is, it calculates the price
         if (item.getQuantity() >= x) {
             return item.getPrice() * item.getQuantity() - ((item.getPrice() * item.getQuantity()) * percentOff / 100);
         }
@@ -52,6 +53,7 @@ public class SalesCalculator {
      * @return
      */
     public static double buyXgetYFree (ShoppingItem item, int x, int y) {
+        //this if statement checks if the quantity is greater than or equal to x, and if it is, it calculates the price
         if (item.getQuantity() >= x) {
             return item.getPrice() * (item.getQuantity() - y);
         }
@@ -74,7 +76,9 @@ public class SalesCalculator {
      * @return
      */
     public static double amountOffEach (ShoppingItem item, double amountOff) {
+        //this is the total price for the item
         double subtotal = 0;
+        //this for loop calculates the subtotal for each item
         for (int i = 0; i < item.getQuantity(); i++) {
             subtotal += item.getPrice() - amountOff;
         }

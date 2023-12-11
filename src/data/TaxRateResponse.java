@@ -61,8 +61,13 @@ public class TaxRateResponse {
         this.additional_rate = additional_rate;
     }
 
+    /**
+     * This is the toString method that returns the tax rate response
+     * @return
+     */
     @Override
     public String toString() {
+        //this is the toString method that returns the tax rate response
         return "TaxRateResponse{" +
                 "zip_code='" + zip_code + '\'' +
                 ", total_rate=" + total_rate +
