@@ -13,6 +13,7 @@ public class SalesCalculator {
      * @return
      */
     public static double percentOff (ShoppingItem item, double percentOff) {
+        //this gets the percent off of the item by multiplying the price by the quantity and then multiplying that by the percent off
         return item.getPrice() * item.getQuantity() - ((item.getPrice() * item.getQuantity()) * percentOff / 100);
     }
 
@@ -67,6 +68,7 @@ public class SalesCalculator {
      * @return
      */
     public static double amountOff (ShoppingItem item, double amountOff) {
+        //this gets the amount off of the item by multiplying the price by the quantity and then subtracting the amount off
         return item.getPrice() * item.getQuantity() - amountOff;
     }
     /**

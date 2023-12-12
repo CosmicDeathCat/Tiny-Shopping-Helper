@@ -31,17 +31,19 @@ public class ZipCodeInputGUI extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String zipCode = userInputZipCode.getText();
-
+                //this if statement checks if the ZIP Code is valid, and if it is, it updates the tax rate
                 if (isValidUSZipCode(zipCode)) {
                     double taxRate = fetchTaxRate(zipCode);
                     mainForm.updateTaxRate(taxRate);
                     mainForm.taxRateInput.setText(String.valueOf(taxRate));
                     dispose();
                 } else {
+                    //this displays an error message if the ZIP Code is invalid
                     JOptionPane.showMessageDialog(null, "Invalid US ZIP Code. Please enter a valid ZIP Code.");
                 }
             }
         });
+        //this adds the main panel to the form
         add(mainPanel);
         setTitle("ZIP Code Input");
         setSize(200, 125);
@@ -55,6 +57,7 @@ public class ZipCodeInputGUI extends JDialog {
      */
     private boolean isValidUSZipCode(String zipCode) {
         String regex = "^\\d{5}$|^\\d{5}-\\d{4}$";
+        //this returns true if the ZIP Code matches the regex
         return Pattern.matches(regex, zipCode);
     }
 
@@ -66,6 +69,7 @@ public class ZipCodeInputGUI extends JDialog {
     private double fetchTaxRate(String zipCode) {
         TaxRateClient taxRateClient = new TaxRateClient();
         TaxRateResponse taxRateResponse = taxRateClient.getTaxRateFromZipCityState(zipCode, null, null);
+        //this returns the total rate
         return taxRateResponse.getTotalRate();
     }
 }

@@ -56,8 +56,11 @@ public class EditItemMenu extends JDialog{
         for (SaleType saleType : SaleType.values()) {
             saleTypeDropDown.addItem(saleType);
         }
+        //this line of code sets the sale type dropdown to the item's sale type
         saleTypeDropDown.setSelectedItem(item.getSaleType());
+        //this line of code sets the selected sale type to the item's sale type
         selectedSaleType = item.getSaleType();
+        //this line of code updates the condition visibility
         updateConditionVisibility();
         //this switch statement sets the condition inputs based on the sale type
         switch (item.getSaleType()) {
@@ -113,9 +116,11 @@ public class EditItemMenu extends JDialog{
         });
         //this line of code sets the shipping inputs based on the item
         int shippingIndex = item.getHasShipping() ? 1 : 0;
+        //this line of code sets the shipping inputs based on the item
         itemShippingDropDown.setSelectedIndex(shippingIndex);
+        //this line of code sets the shipping inputs based on the item
         itemShippingInput.setText(String.valueOf(item.getShippingCost()));
-
+        //this action listener shows the condition inputs based on the sale type selected
         saleTypeDropDown.addActionListener(new ActionListener() {
             /**
              * This method shows the condition inputs based on the sale type selected
@@ -194,6 +199,7 @@ public class EditItemMenu extends JDialog{
                 dispose();
             }
                 catch (NumberFormatException exception) {
+                    //this shows an error message if the user enters an invalid number for the quantity, price, or shipping cost
                     JOptionPane.showMessageDialog(null, "Please enter a valid positive number.");
                 }
             }

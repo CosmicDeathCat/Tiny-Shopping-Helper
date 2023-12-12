@@ -52,6 +52,7 @@ public class JSONHelper {
      */
     public static <T> List<T> fromJSONList(String json, Class<T> object) {
         Type type = TypeToken.getParameterized(List.class, object).getType();
+        // this returns from a JSON string to a list of objects of type T
         return gson.fromJson(json, type);
     }
 }

@@ -133,13 +133,14 @@ public class ShoppingCart {
      * @param name
      */
     public void editItem(ShoppingItem item, String name) {
-        //this is a linear search, it will not exceed 100 items, so it is fine
+        //this loop finds the item to edit
         ShoppingItem itemToEdit = null;
         for (ShoppingItem i : items) {
             if (i.getName().equals(name)) {
                 itemToEdit = i;
             }
         }
+        //this if statement checks if the item to edit is not null, and if it is not, it edits the item
         if (itemToEdit != null) {
             itemToEdit.setName(item.getName());
             itemToEdit.setQuantity(item.getQuantity());
@@ -179,6 +180,7 @@ public class ShoppingCart {
         //this is the total tax for the cart
         totalTax = 0.0;
         totalTax += calculateSubTotal() * taxRate;
+        //this returns the total tax for the cart
         return totalTax;
     }
 
@@ -208,7 +210,9 @@ public class ShoppingCart {
                 default -> {}
             }
         }
+        //this subtracts the amount off from the subtotal
         subTotal -= amountOff;
+        //this returns the subtotal for the cart
         return subTotal;
     }
 
@@ -238,8 +242,11 @@ public class ShoppingCart {
                 default -> {}
             }
         }
+        //this subtracts the amount off from the total
         total -= amountOff;
+        //this adds the shipping cost to the total
         total += calculateShippingCost();
+        //this returns the total for the cart
         return total;
     }
 
@@ -259,6 +266,7 @@ public class ShoppingCart {
                 shippingCost += item.getShippingCost();
             }
         }
+        //this returns the shipping cost for the cart
         return shippingCost;
     }
 
@@ -285,7 +293,7 @@ public class ShoppingCart {
         if (file.exists()) {
             file.delete();
         }
-
+        //these variables use Gson to format the json
         var GSON = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
         var json = GSON.toJson(this);
         try {
@@ -294,6 +302,7 @@ public class ShoppingCart {
             writer.write(json);
             writer.close();
         } catch (Exception e) {
+            //this exception is thrown if the file is not found
             e.printStackTrace();
         }
     }
@@ -335,9 +344,8 @@ public class ShoppingCart {
      * @param extension
      */
     public void saveReceipt(String path, String extension) {
-        //this method saves the receipt of the cart in either a text or csv file
         File file = new File(path);
-        //this if statement checks if the file exists
+        //this if statement checks if the file exists and deletes it if it does
         if (file.exists()) {
             file.delete();
         }
@@ -410,6 +418,7 @@ public class ShoppingCart {
                 writer.write(String.format(locale, "Total,%s\n", String.format(locale, "%.2f", calculateTotal())));
             }
         } catch (IOException e) {
+            //this exception is thrown if the file is not found
             e.printStackTrace();
         }
     }

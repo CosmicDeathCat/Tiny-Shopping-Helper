@@ -37,6 +37,7 @@ public class DataSaver {
             if (!filePath.endsWith(".txt") && !filePath.endsWith(".csv")) {
                 filePath += ".csv"; // Default to CSV
             }
+            // Save to file
             saveToFile(data, filePath);
         }
     }
@@ -68,6 +69,7 @@ public class DataSaver {
                 writer.newLine();
             }
         } catch (IOException e) {
+            // this error message is displayed if there is an error saving the file
             e.printStackTrace();
         }
     }
@@ -128,7 +130,7 @@ public class DataSaver {
         if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1); // Remove trailing comma
         }
-
+        //this returns the string builder as a string
         return sb.toString();
     }
 
@@ -155,6 +157,7 @@ public class DataSaver {
                             .append(value)
                             .append("\n");
                 } catch (IllegalAccessException e) {
+                    // this error message is displayed if there is an error formatting the object
                     e.printStackTrace();
                 }
             }
@@ -174,6 +177,7 @@ public class DataSaver {
         Field[] fields = item.getClass().getDeclaredFields();
         //this for loop iterates through the fields and adds them to the string builder
         for (Field field : fields) {
+            //this if statement checks if the field has a field label annotation, and if it does, it adds it to the string builder
             if (field.isAnnotationPresent(FieldLabel.class)) {
                 field.setAccessible(true);
                 try {
@@ -181,6 +185,7 @@ public class DataSaver {
                     Object value = field.get(item);
                     sb.append(value).append(",");
                 } catch (IllegalAccessException e) {
+                    // this error message is displayed if there is an error formatting the object
                     e.printStackTrace();
                 }
             }
@@ -189,7 +194,7 @@ public class DataSaver {
         if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1); // Remove trailing comma
         }
-
+        //this returns the string builder as a string
         return sb.toString();
     }
 }

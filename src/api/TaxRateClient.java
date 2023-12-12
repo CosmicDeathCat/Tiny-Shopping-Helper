@@ -17,14 +17,12 @@ public class TaxRateClient {
     private static final String API_URL = Configuration.getApiUrl();
     private static final String API_KEY = Configuration.getApiKey();
     private static final String API_HOST = Configuration.getApiHost();
-    private final Gson gson;
 
     /**
      * This is a constructor for the Tax Rate Client
      */
     public TaxRateClient() {
-        // Initialize Gson
-        gson = new Gson();
+
     }
 
     /**
@@ -66,21 +64,22 @@ public class TaxRateClient {
      */
     public TaxRateResponse getTaxRateFromZipCityState(String zipCode, String city, String state) {
         try {
-            // Create HTTP client
+            // Creates a HTTP client
             HttpClient client = HttpClient.newHttpClient();
             URI uri = buildURI(zipCode, city, state);
-            // Build request
+            // Builds a request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
                     .header("X-RapidAPI-Key", API_KEY)
                     .header("X-RapidAPI-Host", API_HOST)
                     .build();
-            // Send request
+            // Sends a request
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            // Parse response
+            // Parses the response
             List<TaxRateResponse> taxRates = JSONHelper.fromJSONList(response.body(), TaxRateResponse.class);
             return taxRates.isEmpty() ? null : taxRates.get(0);
         } catch (Exception e) {
+            //this displays an error message if there is an error getting the tax rate
             e.printStackTrace();
             return null;
         }

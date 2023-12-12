@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Locale;
 
 /**
  * This class contains methods for the main GUI
@@ -57,6 +56,7 @@ public class ShoppingMainGUI extends JFrame{
      * this is a constructor for the main GUI
      */
     public ShoppingMainGUI() {
+        //these are the labels for the GUI
         setTitle("Tiny Shopping Helper");
         updateTaxRate(0.0);
         getCartTotalShipping();
@@ -67,12 +67,12 @@ public class ShoppingMainGUI extends JFrame{
         //shows the flat shipping input if the checkbox is selected
         useFlatShippingInput.setVisible(false);
         useFlatShippingLabel.setVisible(false);
-
         useFlatShippingInput.setPreferredSize(new Dimension(100, 25));
-
+        //this jpnael is for the table
         JPanel contentPane = (JPanel) getContentPane();
+        //this content pane is for the border layout
         contentPane.setLayout(new BorderLayout());
-
+        //this content pane is for the table
         contentPane.add(TSHPanel, BorderLayout.CENTER);
         //creates the table
         DefaultTableModel tableModel = new DefaultTableModel(
@@ -98,13 +98,14 @@ public class ShoppingMainGUI extends JFrame{
         //sets the table to be centered
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
+        //this for loop sets the table to be centered
         for (int columnIndex = 0; columnIndex < shoppingCartTable.getColumnCount(); columnIndex++) {
             shoppingCartTable.getColumnModel().getColumn(columnIndex).setCellRenderer(centerRenderer);
         }
 
 
         tableModel.addTableModelListener(new TableModelListener() {
+
             private boolean isUpdating = false;
 
             /**
@@ -127,7 +128,7 @@ public class ShoppingMainGUI extends JFrame{
                     ShoppingItem item = shoppingCart.getItems().get(row);
 
                     try {
-                        //Prevent infinite recursion
+
                         isUpdating = true;
                         double num = 0;
                         switch (column) {
@@ -215,9 +216,7 @@ public class ShoppingMainGUI extends JFrame{
                         //updates the table
                         SwingUtilities.invokeLater(() -> {
                             try{
-                                //Update the total price of the item
-                            String formattedTotal = String.format(Locale.US, "%.2f", item.getTotalPrice(false));
-                            model.setValueAt(formattedTotal, row, 6);
+                                updateShoppingCartTableItems();
                         }
                             catch (Exception ex){
                                 //if there is an error updating the table it will show an error message
@@ -233,7 +232,6 @@ public class ShoppingMainGUI extends JFrame{
                         if(column == 3) model.setValueAt(String.format("%.2f", item.getTaxCost()), row, column);
                         if(column == 4) model.setValueAt(String.format("%.2f", item.getShippingCost()), row, column);
                     } finally {
-                        //Prevent infinite recursion and update the table
                         isUpdating = false;
                         updateTaxRate(taxRate);
                         getCartTotalShipping();
@@ -258,6 +256,7 @@ public class ShoppingMainGUI extends JFrame{
                 AddItemMenu addItemMenu = new AddItemMenu(ShoppingMainGUI.this, taxRate);
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error adding an item
                     JOptionPane.showMessageDialog(null, "Error adding item", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -279,6 +278,7 @@ public class ShoppingMainGUI extends JFrame{
                 getAmountSaved();
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error calculating the total
                     JOptionPane.showMessageDialog(null, "Error calculating total", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -297,6 +297,7 @@ public class ShoppingMainGUI extends JFrame{
                 EditItemMenu editItemMenu = new EditItemMenu(ShoppingMainGUI.this, item, index);
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error editing an item
                     JOptionPane.showMessageDialog(null, "Error editing item. Please select an item to edit.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -319,6 +320,7 @@ public class ShoppingMainGUI extends JFrame{
                 getAmountSaved();
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error deleting an item
                     JOptionPane.showMessageDialog(null, "Error deleting item", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -339,20 +341,24 @@ public class ShoppingMainGUI extends JFrame{
              var fileFilter = new FileNameExtensionFilter("json", "json");
              fileChooser.setFileFilter(fileFilter);
              int result = fileChooser.showSaveDialog(ShoppingMainGUI.this);
+             //if the user selects a file it will save the cart
              if (result == JFileChooser.APPROVE_OPTION) {
                  String path = fileChooser.getSelectedFile().getAbsolutePath();
+                 //if the file does not have an extension it will add the extension
                  if(path.lastIndexOf('.') == -1){
                      path += ".json";
                  }
+                 //else if the file does not have a json extension it will add the extension
                  else if(!path.substring(path.lastIndexOf('.')).equals(".json")){
                      path = path.substring(0, path.lastIndexOf('.'));
                      path += ".json";
                  }
-
+                //saves the cart
                  shoppingCart.saveCart(path);
              }
          }
                 catch (Exception ex){
+                     //this error message will show if there is an error saving the cart
                     JOptionPane.showMessageDialog(null, "Error saving cart", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -381,6 +387,7 @@ public class ShoppingMainGUI extends JFrame{
                  taxRateInput.setText(String.valueOf(shoppingCart.getTaxRate()));
                  updateShoppingCartTableItems();
              }
+             //these methods update the cart
              getCartTotalShipping();
              getCartTotalTax();
              getCartSubtotal();
@@ -388,6 +395,7 @@ public class ShoppingMainGUI extends JFrame{
              getAmountSaved();
          }
                 catch (Exception ex){
+                 //this error message will show if there is an error loading the cart
                     JOptionPane.showMessageDialog(null, "Error loading cart", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -431,6 +439,7 @@ public class ShoppingMainGUI extends JFrame{
                     }
 
                 } catch (NumberFormatException ex) {
+                    //this error message will show if there is an error changing the tax rate
                     JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
                     useFlatShippingInput.setText(String.format("%.2f", shoppingCart.getShippingCost()));
                 }
@@ -460,6 +469,7 @@ public class ShoppingMainGUI extends JFrame{
                 zipCodeInputGUI.setVisible(true);
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error loading the tax rate
                     JOptionPane.showMessageDialog(null, "Error loading tax rate", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -487,6 +497,7 @@ public class ShoppingMainGUI extends JFrame{
                         getCartGrandTotal();
                     }
                 } catch (NumberFormatException ex) {
+                    //this error message will show if there is an error changing the number format
                     JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
                     useFlatShippingInput.setText(String.format("%.2f", shoppingCart.getShippingCost()));
                 }
@@ -531,6 +542,7 @@ public class ShoppingMainGUI extends JFrame{
             }
         }
             catch (Exception ex){
+                //this error message will show if there is an error saving the receipt
                 JOptionPane.showMessageDialog(null, "Error saving receipt", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -552,15 +564,16 @@ public class ShoppingMainGUI extends JFrame{
                         JOptionPane.showMessageDialog(null, "Tax rate cannot be negative", "Error", JOptionPane.ERROR_MESSAGE);
                         taxRateInput.setText(String.valueOf(taxRate));
                     } else {
+                        //updates the tax rate
                         taxRate = tax;
                         shoppingCart.setTaxRate(tax);
-                        //updates the tax rate
+                        //this for loop sets the tax rate for each item in the cart
                         for (ShoppingItem item : shoppingCart.getItems()) {
                             item.setTaxRate(tax);
                         }
-
+                        //this label shows the tax rate
                         cartTaxRateLabel.setText("Tax Rate: " + tax * 100 + "%");
-
+                        //these get the total shipping, tax, subtotal, grand total, and amount saved
                         updateShoppingCartTableItems();
                         getCartTotalShipping();
                         getCartTotalTax();
@@ -568,6 +581,7 @@ public class ShoppingMainGUI extends JFrame{
                         getAmountSaved();
                     }
                 } catch (NumberFormatException ex) {
+                    //this error message will show if there is an error changing the number format
                     JOptionPane.showMessageDialog(null, "Invalid number format", "Error", JOptionPane.ERROR_MESSAGE);
                     taxRateInput.setText(String.valueOf(tax));
                 }
@@ -597,6 +611,7 @@ public class ShoppingMainGUI extends JFrame{
 
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error clearing the cart
                     JOptionPane.showMessageDialog(null, "Error clearing cart", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -617,6 +632,7 @@ public class ShoppingMainGUI extends JFrame{
                 zipCodeInputGUI.setVisible(true);
             }
                 catch (Exception ex){
+                    //this error message will show if there is an error loading the tax rate
                     JOptionPane.showMessageDialog(null, "Error loading tax rate", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -646,9 +662,11 @@ public class ShoppingMainGUI extends JFrame{
                 String.format("%.2f", item.getShippingCost()),
                 String.format("%.2f", item.getTotalPrice(false))
         };
+        //this adds the row to the table
         tableModel.addRow(rowData);
     }
         catch (Exception ex){
+            //this error message will show if there is an error adding an item
             JOptionPane.showMessageDialog(null, "Error adding item", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -666,6 +684,7 @@ public class ShoppingMainGUI extends JFrame{
         updateShoppingCartTableItems();
     }
         catch (Exception ex){
+            //this error message will show if there is an error deleting an item
             JOptionPane.showMessageDialog(null, "Error deleting item", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -734,6 +753,7 @@ public class ShoppingMainGUI extends JFrame{
         }
     }
         catch (Exception ex){
+            //this error message will show if there is an error updating the cart
             JOptionPane.showMessageDialog(null, "Error updating cart", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -747,25 +767,26 @@ public class ShoppingMainGUI extends JFrame{
         try {
             //updates the cart table
         DefaultTableModel tableModel = (DefaultTableModel) shoppingCartTable.getModel();
-
+        //these set the values of the table
         tableModel.setValueAt(updatedItem.getName(), rowIndex, 0);
         tableModel.setValueAt(String.format("%.2f", updatedItem.getPrice()), rowIndex, 1);
         tableModel.setValueAt(String.valueOf(updatedItem.getQuantity()), rowIndex, 2);
-
+        //this gets the tax cost of the item
         double taxCost = updatedItem.getTaxCost();
         tableModel.setValueAt(String.format("%.2f", taxCost), rowIndex, 3);
-
+        //this sets value of the shipping cost of the item
         tableModel.setValueAt(String.format("%.2f", updatedItem.getShippingCost()), rowIndex, 4);
-
+        //this gets the amount saved of the item
         double amountSaved = updatedItem.getAmountSaved();
         tableModel.setValueAt(String.format("%.2f", amountSaved), rowIndex, 5);
-
+        //this gets the total price of the item
         double total = updatedItem.getTotalPrice(false);
         tableModel.setValueAt(String.format("%.2f", total), rowIndex, 6);
-
+        //this updates the table
         tableModel.fireTableRowsUpdated(rowIndex, rowIndex);
     }
         catch (Exception ex){
+            //this error message will show if there is an error updating the cart
             JOptionPane.showMessageDialog(null, "Error updating cart", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -778,11 +799,11 @@ public class ShoppingMainGUI extends JFrame{
         //updates the tax rate
         this.taxRate = taxRate;
         shoppingCart.setTaxRate(taxRate);
-
+        //this for loop sets the tax rate for each item in the cart
         for (ShoppingItem item : shoppingCart.getItems()) {
             item.setTaxRate(taxRate);
         }
-
+        //this label shows the tax rate
         cartTaxRateLabel.setText("Tax Rate: " + taxRate * 100 + "%");
     }
 
@@ -791,6 +812,7 @@ public class ShoppingMainGUI extends JFrame{
      * @param args
      */
     public static void main(String[] args) {
+        //this creates the main GUI
         SwingUtilities.invokeLater(() -> {
             ShoppingMainGUI mainForm = new ShoppingMainGUI();
             mainForm.setVisible(true);

@@ -49,16 +49,16 @@ public class AddItemMenu extends JDialog {
         super(mainForm, true);
         this.mainForm = mainForm;
         this.taxRate = taxRate;
-
+        //these are the labels for the add item menu
         itemNameInput.setPreferredSize(new Dimension(200, 24));
 
         itemQuantityInput.setPreferredSize(new Dimension(200, 24));
 
         itemPriceInput.setPreferredSize(new Dimension(200, 24));
-
+        //these are is the dropdown menu for the shipping
         itemShippingCostLabel.setVisible(false);
         itemShippingInput.setVisible(false);
-        //this is the drop down menu for the sale type
+        //this is the dropdown menu for the shipping yes or no
         itemShippingDropDown.addItem("No");
         itemShippingDropDown.addItem("Yes");
         itemShippingDropDown.addActionListener(new ActionListener() {
@@ -75,6 +75,7 @@ public class AddItemMenu extends JDialog {
                     itemShippingCostLabel.setVisible(true);
                     itemShippingInput.setVisible(true);
                 } else {
+                    //else it hides the shipping cost input
                     itemShippingCostLabel.setVisible(false);
                     itemShippingInput.setVisible(false);
                 }
@@ -84,7 +85,7 @@ public class AddItemMenu extends JDialog {
         for (SaleType saleType : SaleType.values()) {
             saleTypeDropDown.addItem(saleType);
         }
-
+        //this is the condition input for the sale type
         condition2Input.setPreferredSize(new Dimension(200, 24));
         //these are the labels for the sale type conditions
         saleTypeCondition1.setVisible(false);
@@ -127,12 +128,15 @@ public class AddItemMenu extends JDialog {
                     throw new NumberFormatException();
                 }
                 double itemShippingCost = 0.0;
+                //this if statement checks if the user selected yes for shipping
                 if(itemShippingDropDown.getSelectedItem().equals("Yes")) {
                     itemShippingCost = Double.parseDouble(itemShippingInput.getText());
+                    //this if statement checks if the user entered a negative number
                     if (itemShippingCost < 0) {
                         throw new NumberFormatException();
                     }
                 }
+                //these set the values for the shopping item
                 ShoppingItem item = new ShoppingItem();
                 item.setName(itemName);
                 item.setPrice(itemPrice);
@@ -144,12 +148,14 @@ public class AddItemMenu extends JDialog {
                 //these are the conditions for the sale types
                 switch (selectedSaleType) {
                     case None -> {
+                        //this is when there is no sale
                         item.setPercentOff(0.0);
                         item.setAmountOff(0.0);
                         item.setAmountX(0);
                         item.setAmountY(0);
                     }
                     case PercentOff -> {
+                        //this is when there is a percent off sale
                         item.setPercentOff(Double.parseDouble(condition1Input.getText()));
                         item.setAmountOff(0.0);
                         item.setAmountX(0);
@@ -157,6 +163,7 @@ public class AddItemMenu extends JDialog {
                     }
 
                     case BuyXGetPercentOffTotal -> {
+                        //this is when there is a buy x get percent off total sale
                         item.setPercentOff(Double.parseDouble(condition2Input.getText()));
                         item.setAmountOff(0.0);
                         item.setAmountX(Integer.parseInt(condition1Input.getText()));
@@ -164,30 +171,35 @@ public class AddItemMenu extends JDialog {
                         item.setAmountSaved(SalesCalculator.buyXgetPercentOffTotal(ShoppingMainGUI.shoppingCart.calculateSubTotal(), item, item.getAmountX(), item.getPercentOff()));
                     }
                     case BuyXGetYPercentOff -> {
+                        //this is when there is a buy x get y percent off sale
                         item.setPercentOff(Double.parseDouble(condition2Input.getText()));
                         item.setAmountOff(0.0);
                         item.setAmountX(Integer.parseInt(condition1Input.getText()));
                         item.setAmountY(0);
                     }
                     case BuyXGetYFree -> {
+                        //this is when there is a buy x get y free sale
                         item.setPercentOff(0.0);
                         item.setAmountOff(0.0);
                         item.setAmountX(Integer.parseInt(condition1Input.getText()));
                         item.setAmountY(Integer.parseInt(condition2Input.getText()));
                     }
                     case AmountOff -> {
+                        //this is when there is an amount off sale
                         item.setPercentOff(0.0);
                         item.setAmountOff(Double.parseDouble(condition1Input.getText()));
                         item.setAmountX(0);
                         item.setAmountY(0);
                     }
                     case AmountOffEach -> {
+                        //this is when there is an amount off each sale
                         item.setPercentOff(0.0);
                         item.setAmountOff(Double.parseDouble(condition1Input.getText()));
                         item.setAmountX(0);
                         item.setAmountY(0);
                     }
                     case AmountOffTotal -> {
+                        //this is when there is an amount off total sale
                         item.setPercentOff(0.0);
                         item.setAmountOff(Double.parseDouble(condition1Input.getText()));
                         item.setAmountX(0);
@@ -207,6 +219,7 @@ public class AddItemMenu extends JDialog {
                 dispose();
             }
                 catch (NumberFormatException exception) {
+                    //this is the error message for when the user enters a negative number, or a non-number
                     JOptionPane.showMessageDialog(null, "Please enter a valid positive number.");
                 }
             }

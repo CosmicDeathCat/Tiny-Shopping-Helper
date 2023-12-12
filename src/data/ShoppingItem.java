@@ -7,7 +7,6 @@ import core.SalesCalculator;
  * This class contains methods for a shopping item.
  */
 public class ShoppingItem {
-    //using field labels to make the UI look nicer and to make it easier to add new fields
     @FieldLabel("Name")
     private String name;
     @FieldLabel("Quantity")
@@ -64,7 +63,7 @@ public class ShoppingItem {
     public int getAmountY () { return amountY; }
 
     public double getTaxCost() {
-        //this is the tax cost for the item
+        //this returns the tax cost for the item
         return (this.price * this.quantity) * taxRate;
     }
 
@@ -105,7 +104,9 @@ public class ShoppingItem {
                 postSalePrice -= this.amountOff;
             }
         }
+        //this calculates the amount saved by subtracting the subtotal from the post sale price
         amountSaved = subtotal - postSalePrice;
+        //this returns the amount saved
         return amountSaved;
     }
 
@@ -170,9 +171,11 @@ public class ShoppingItem {
                 subtotal -= this.amountOff;
             }
         }
+        //this if statement checks if includeTaxCost is true, and if it is, it adds the tax cost to the subtotal
         if (includeTaxCost) {
             subtotal += getTaxCost();
         }
+        //this returns the subtotal
         return subtotal;
     }
 
